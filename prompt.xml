@@ -1,0 +1,155 @@
+`<?xml version="1.0" encoding="UTF-8"?>
+
+<prompt>
+  <role>
+    Senior product designer and frontend engineer specializing in high-trust,
+    enterprise-grade interfaces.
+  </role>
+
+  <objective>
+    Design and implement a personal portfolio website using the exact UI/UX
+    philosophy of humbleops.com, adapted for an individual professional targeting
+    recruiters.
+  </objective>
+
+  <audience>
+    <primary>Technical recruiters</primary>
+    <secondary>Hiring managers and senior engineers</secondary>
+    <goal>
+      Communicate competence, clarity, and seriousness within 30 seconds of page load.
+    </goal>
+  </audience>
+
+  <design_dna>
+    <aesthetic>
+      Dark, near-black background (#0E0E0E to #121212)
+    </aesthetic>
+    <text_color>
+      Off-white, never pure white
+    </text_color>
+    <accent_color>
+      Exactly one muted accent color (subtle blue or neutral gray)
+    </accent_color>
+    <style>
+      Minimal, industrial, calm, authoritative
+    </style>
+    <restrictions>
+      <item>No gradients</item>
+      <item>No loud colors</item>
+      <item>No playful visuals</item>
+      <item>No decorative UI</item>
+    </restrictions>
+  </design_dna>
+
+  <typography>
+    <font>Inter (single font only)</font>
+    <rules>
+      <item>Large headings</item>
+      <item>Generous spacing</item>
+      <item>Short, declarative sentences</item>
+      <item>No font mixing</item>
+    </rules>
+  </typography>
+
+  <layout>
+    <section id="hero">
+      <rules>
+        <item>One strong professional sentence</item>
+        <item>One short supporting line</item>
+        <item>No buttons</item>
+        <item>No calls to action</item>
+      </rules>
+    </section>
+
+    <section id="capabilities">
+      <rules>
+        <item>Exactly three capability blocks</item>
+        <item>Each block: short title + one blunt sentence</item>
+        <item>No icons unless extremely subtle</item>
+      </rules>
+    </section>
+
+    <section id="projects">
+      <rules>
+        <item>Clean list or card layout</item>
+        <item>Each project shows name, problem, outcome</item>
+        <item>Click opens a focused detail page</item>
+        <item>No feature overload</item>
+      </rules>
+    </section>
+
+    <section id="principles">
+      <rules>
+        <item>Short paragraph explaining work philosophy</item>
+        <item>System-oriented and rational tone</item>
+        <item>No life story</item>
+        <item>No motivational language</item>
+      </rules>
+    </section>
+
+    <section id="contact">
+      <rules>
+        <item>One neutral line inviting contact</item>
+        <item>Email, GitHub, LinkedIn only</item>
+        <item>No social clutter</item>
+      </rules>
+    </section>
+  </layout>
+
+  <interaction>
+    <motion>
+      <item>Subtle fade-in only</item>
+      <item>Slow and deliberate</item>
+      <item>No parallax</item>
+      <item>No scroll hijacking</item>
+    </motion>
+  </interaction>
+
+  <copywriting>
+    <rules>
+      <item>Short sentences</item>
+      <item>Declarative tone</item>
+      <item>No buzzwords</item>
+      <item>No emotional language</item>
+    </rules>
+    <forbidden_words>
+      <word>passionate</word>
+      <word>innovative</word>
+      <word>dynamic</word>
+      <word>enthusiastic</word>
+    </forbidden_words>
+  </copywriting>
+
+  <implementation>
+    <stack>
+      <framework>Next.js</framework>
+      <styling>Tailwind CSS</styling>
+    </stack>
+    <rules>
+      <item>Dark mode by default</item>
+      <item>Semantic HTML</item>
+      <item>Desktop-first responsiveness</item>
+      <item>Production-grade readable code</item>
+    </rules>
+  </implementation>
+
+  <exclusions>
+    <item>No skill bars</item>
+    <item>No percentages</item>
+    <item>No testimonials</item>
+    <item>No blog feed on homepage</item>
+    <item>No emojis</item>
+  </exclusions>
+
+  <output>
+    <deliverables>
+      <item>Complete page layout</item>
+      <item>Component structure</item>
+      <item>Tailwind configuration</item>
+      <item>High-signal placeholder copy</item>
+    </deliverables>
+    <constraints>
+      No explanations unless explicitly requested. Focus on execution.
+    </constraints>
+  </output>
+</prompt>
