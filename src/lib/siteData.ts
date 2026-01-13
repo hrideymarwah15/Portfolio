@@ -27,6 +27,18 @@ export interface Project {
   link: string;
 }
 
+export interface GitHubRepo {
+  id: number;
+  name: string;
+  full_name: string;
+  description: string | null;
+  html_url: string;
+  language: string | null;
+  stargazers_count: number;
+  topics: string[];
+  updated_at: string;
+}
+
 export interface ContactData {
   availabilityText: string;
   isAvailable: boolean;
@@ -49,6 +61,8 @@ export interface SiteData {
   skills: string[];
   contact: ContactData;
   meta: SiteMetaData;
+  githubUsername: string;
+  selectedGitHubRepos: GitHubRepo[];
 }
 
 export const defaultSiteData: SiteData = {
@@ -126,6 +140,8 @@ export const defaultSiteData: SiteData = {
     siteDescription: "Software engineer building reliable systems and clear interfaces.",
     footerText: "HRIDEY MARWAH",
   },
+  githubUsername: "",
+  selectedGitHubRepos: [],
 };
 
 const STORAGE_KEY = "portfolio_site_data";
@@ -134,7 +150,7 @@ export function getSiteData(): SiteData {
   if (typeof window === "undefined") {
     return defaultSiteData;
   }
-  
+
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
@@ -143,13 +159,13 @@ export function getSiteData(): SiteData {
   } catch (e) {
     console.error("Error reading site data:", e);
   }
-  
+
   return defaultSiteData;
 }
 
 export function saveSiteData(data: SiteData): void {
   if (typeof window === "undefined") return;
-  
+
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch (e) {

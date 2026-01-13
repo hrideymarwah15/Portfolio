@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Fira_Code } from "next/font/google";
 import "./globals.css";
+import StickyHeader from "@/components/StickyHeader";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,7 +27,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Cedarville+Cursive&display=swap"
+          rel="stylesheet"
+        />
+      </head>
       <body className={`${inter.variable} ${firaCode.variable} antialiased`}>
+        <StickyHeader />
         {children}
       </body>
     </html>

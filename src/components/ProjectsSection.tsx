@@ -1,38 +1,507 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { useRef, useState, useCallback, ReactNode } from "react";
+import { motion, useInView, AnimatePresence, Variants } from "framer-motion";
+import { ChevronLeft, ChevronRight, Github, Star, ExternalLink, Eye } from "lucide-react";
+import LivePreviewModal from "./LivePreviewModal";
 
+// Exported interfaces for use in other components
+export interface ProjectItem {
+  title: string;
+  problem: string;
+  outcome?: string;
+  tag: string;
+  tagColor: string;
+  link?: string;
+  liveUrl?: string | null;
+}
+
+export interface GitHubRepoItem {
+  id: number;
+  name: string;
+  full_name: string;
+  description: string | null;
+  html_url: string;
+  homepage?: string | null;
+  language: string | null;
+  stargazers_count: number;
+  topics: string[];
+  updated_at: string;
+}
+
+// Scroll entrance animation for elements
 export function ScrollEntrance({
   children,
   delay = 0,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   delay?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, {
     once: true,
-    margin: "-100px 0px -100px 0px",
+    amount: 0.1,
   });
 
   return (
-    <>
-      <div ref={ref} className="absolute pointer-events-none h-px" />
+    <div ref={ref}>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
+        initial={{ opacity: 0, y: 30 }}
+        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
         transition={{
-          duration: 0.8,
-          ease: "easeOut",
-          delay: Math.min(delay, 0.1),
+          duration: 0.6,
+          ease: [0.25, 0.1, 0.25, 1],
+          delay: delay,
         }}
       >
         {children}
       </motion.div>
-    </>
+    </div>
   );
 }
-export default function ProjectsSection() {
-  return null;
+
+// Internal project type with optional id for carousel
+interface InternalProject extends ProjectItem {
+  id?: string;
+}
+
+// Combined project type for carousel
+type CarouselProject =
+  | { type: "manual"; data: InternalProject; key: string }
+  | { type: "github"; data: GitHubRepoItem; key: string };
+
+// Tear animation variants with proper typing
+const tearVariants: Variants = {
+  initial: (direction: number) => ({
+    x: direction > 0 ? 400 : -400,
+    rotateZ: direction > 0 ? 8 : -8,
+    opacity: 0,
+    scale: 0.9,
+  }),
+  animate: {
+    x: 0,
+    rotateZ: 0,
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: "spring" as const,
+      stiffness: 300,
+      damping: 30,
+      mass: 1,
+    },
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? -400 : 400,
+    rotateZ: direction > 0 ? -8 : 8,
+    opacity: 0,
+    scale: 0.9,
+    transition: {
+      type: "spring" as const,
+      stiffness: 300,
+      damping: 30,
+      mass: 1,
+    },
+  }),
+};
+
+// Project Card Component
+function ProjectCard({
+  project,
+  direction,
+  onPreview
+}: {
+  project: CarouselProject;
+  direction: number;
+  onPreview: (url: string, title: string) => void;
+}) {
+  if (project.type === "manual") {
+    const data = project.data;
+    return (
+      <motion.div
+        key={project.key}
+        custom={direction}
+        variants={tearVariants}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        className="absolute inset-0"
+      >
+        <div
+          className="relative bg-white border-2 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-full flex gap-6"
+          style={{ borderRadius: '20px 15px 20px 15px' }}
+        >
+          {/* Paper texture overlay */}
+          <div
+            className="absolute inset-0 opacity-[0.02] pointer-events-none"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+            }}
+          />
+
+          {/* Tag */}
+          <div
+            className={`absolute top-4 right-4 px-4 py-2 font-mono font-bold text-xs border-2 border-black bg-white rotate-6 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${data.tagColor} z-10`}
+          >
+            [{data.tag}]
+          </div>
+
+          {/* Left Content */}
+          <div className="flex-1 flex flex-col min-w-0">
+            <h3 className="font-mono font-bold text-2xl md:text-3xl mb-4 pr-20 tracking-tight">
+              {data.title}
+            </h3>
+            <p className="text-gray-600 text-lg mb-6 leading-relaxed">
+              {data.problem}
+            </p>
+
+            {/* Action Buttons */}
+            <div className="mt-auto flex flex-wrap gap-3">
+              {(data.liveUrl || data.link) && (
+                <button
+                  onClick={() => onPreview(data.liveUrl || data.link!, data.title)}
+                  className="inline-flex items-center gap-3 px-6 py-3 bg-black text-white font-mono font-bold text-sm border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:text-black hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+                >
+                  <Eye size={16} />
+                  LIVE PREVIEW
+                </button>
+              )}
+              {data.link && (
+                <a
+                  href={data.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 px-6 py-3 bg-white text-black font-mono font-bold text-sm border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-black hover:text-white hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+                >
+                  <ExternalLink size={16} />
+                  VIEW PROJECT
+                </a>
+              )}
+            </div>
+          </div>
+
+          {/* Right Preview Box - Live iframe */}
+          <div
+            className="hidden md:block w-72 h-64 border-2 border-black bg-white flex-shrink-0 relative overflow-hidden cursor-pointer group"
+            onClick={() => {
+              const previewUrl = data.liveUrl || data.link;
+              if (previewUrl) onPreview(previewUrl, data.title);
+            }}
+          >
+            {(data.liveUrl || data.link) && !(data.liveUrl || data.link)?.includes('github.com') ? (
+              <>
+                {/* Scaled iframe */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                  <iframe
+                    src={data.liveUrl || data.link}
+                    title={`${data.title} preview`}
+                    className="w-[1280px] h-[800px] origin-top-left border-0"
+                    style={{
+                      transform: 'scale(0.225)',
+                      pointerEvents: 'none',
+                    }}
+                    loading="lazy"
+                    sandbox="allow-scripts allow-same-origin"
+                  />
+                </div>
+                {/* Hover overlay */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                  <div className="text-white text-center">
+                    <Eye size={24} className="mx-auto mb-2" />
+                    <p className="text-xs font-mono font-bold">EXPAND</p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+                <div className="text-center p-4">
+                  <ExternalLink size={32} className="mx-auto mb-2 text-gray-300" />
+                  <p className="text-xs font-mono text-gray-400">
+                    {(data.liveUrl || data.link) ? "Open Externally" : "No preview"}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Decorative corner fold */}
+          <div
+            className="absolute top-0 right-0 w-12 h-12 bg-gray-100 border-l-2 border-b-2 border-black"
+            style={{
+              clipPath: 'polygon(100% 0, 0 0, 100% 100%)',
+            }}
+          />
+        </div>
+      </motion.div>
+    );
+  }
+
+  // GitHub Repo Card
+  const repo = project.data;
+  return (
+    <motion.div
+      key={project.key}
+      custom={direction}
+      variants={tearVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+      className="absolute inset-0"
+    >
+      <div
+        className="relative bg-white border-2 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-full flex gap-6"
+        style={{ borderRadius: '20px 15px 20px 15px' }}
+      >
+        {/* Paper texture overlay */}
+        <div
+          className="absolute inset-0 opacity-[0.02] pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+          }}
+        />
+
+        {/* GitHub badge + stats */}
+        <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+          {repo.language && (
+            <span className="px-3 py-1.5 font-mono font-bold text-xs border-2 border-black bg-gray-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+              {repo.language}
+            </span>
+          )}
+          <span className="px-3 py-1.5 font-mono font-bold text-xs border-2 border-black bg-white flex items-center gap-1.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+            <Star size={14} className="fill-yellow-400 text-yellow-400" />
+            {repo.stargazers_count}
+          </span>
+        </div>
+
+        {/* Left Content */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full border-2 border-black flex items-center justify-center bg-gray-50">
+              <Github size={20} />
+            </div>
+            <h3 className="font-mono font-bold text-2xl md:text-3xl tracking-tight">
+              {repo.name}
+            </h3>
+          </div>
+
+          <p className="text-gray-600 text-lg mb-6 leading-relaxed">
+            {repo.description || "No description available"}
+          </p>
+
+          {/* Topics */}
+          {repo.topics && repo.topics.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-6">
+              {repo.topics.slice(0, 5).map((topic) => (
+                <span
+                  key={topic}
+                  className="px-3 py-1 text-xs font-mono font-bold bg-gray-100 text-gray-700 border border-gray-300"
+                >
+                  #{topic}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="mt-auto flex flex-wrap gap-3">
+            {repo.homepage && (
+              <button
+                onClick={() => onPreview(repo.homepage!, repo.name)}
+                className="inline-flex items-center gap-3 px-6 py-3 bg-black text-white font-mono font-bold text-sm border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:text-black hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+              >
+                <Eye size={16} />
+                LIVE PREVIEW
+              </button>
+            )}
+            <a
+              href={repo.html_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-6 py-3 bg-white text-black font-mono font-bold text-sm border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-black hover:text-white hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+            >
+              <Github size={16} />
+              VIEW CODE
+            </a>
+          </div>
+        </div>
+
+        {/* Right Preview Box - Live iframe */}
+        <div
+          className="hidden md:block w-72 h-64 border-2 border-black bg-white flex-shrink-0 relative overflow-hidden cursor-pointer group"
+          onClick={() => {
+            if (repo.homepage) onPreview(repo.homepage, repo.name);
+          }}
+        >
+          {repo.homepage && !repo.homepage.includes('github.com') ? (
+            <>
+              {/* Scaled iframe */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <iframe
+                  src={repo.homepage}
+                  title={`${repo.name} preview`}
+                  className="w-[1280px] h-[800px] origin-top-left border-0"
+                  style={{
+                    transform: 'scale(0.225)',
+                    pointerEvents: 'none',
+                  }}
+                  loading="lazy"
+                  sandbox="allow-scripts allow-same-origin"
+                />
+              </div>
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <div className="text-white text-center">
+                  <Eye size={24} className="mx-auto mb-2" />
+                  <p className="text-xs font-mono font-bold">EXPAND</p>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+              <div className="text-center p-4">
+                <Github size={32} className="mx-auto mb-2 text-gray-300" />
+                <p className="text-xs font-mono text-gray-400">
+                  {repo.homepage ? "Open Externally" : "Code only"}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Decorative corner fold */}
+        <div
+          className="absolute top-0 right-0 w-12 h-12 bg-gray-100 border-l-2 border-b-2 border-black z-10"
+          style={{
+            clipPath: 'polygon(100% 0, 0 0, 100% 100%)',
+          }}
+        />
+      </div>
+    </motion.div>
+  );
+}
+
+interface ProjectsSectionProps {
+  projects: ProjectItem[];
+  githubRepos?: GitHubRepoItem[];
+}
+
+export default function ProjectsSection({ projects, githubRepos = [] }: ProjectsSectionProps) {
+  const [[currentIndex, direction], setCurrentIndex] = useState([0, 0]);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewTitle, setPreviewTitle] = useState<string>("");
+
+  const handlePreview = (url: string, title: string) => {
+    setPreviewUrl(url);
+    setPreviewTitle(title);
+  };
+
+  const closePreview = () => {
+    setPreviewUrl(null);
+    setPreviewTitle("");
+  };
+
+  // Combine all projects into a single array
+  const allProjects: CarouselProject[] = [
+    ...projects.map((p, idx): CarouselProject => ({
+      type: "manual",
+      data: p,
+      key: `manual-${idx}-${p.title}`
+    })),
+    ...githubRepos.map((r): CarouselProject => ({
+      type: "github",
+      data: r,
+      key: `github-${r.id}`
+    })),
+  ];
+
+  const totalProjects = allProjects.length;
+
+  const goToNext = useCallback(() => {
+    if (totalProjects === 0) return;
+    setCurrentIndex(([prev]) => [(prev + 1) % totalProjects, 1]);
+  }, [totalProjects]);
+
+  const goToPrev = useCallback(() => {
+    if (totalProjects === 0) return;
+    setCurrentIndex(([prev]) => [(prev - 1 + totalProjects) % totalProjects, -1]);
+  }, [totalProjects]);
+
+  // Empty state
+  if (totalProjects === 0) {
+    return (
+      <div className="text-center py-16">
+        <div className="font-mono text-gray-400 mb-4">// NO PROJECTS YET</div>
+        <p className="text-gray-500">Add projects in the admin panel to display them here.</p>
+      </div>
+    );
+  }
+
+  const currentProject = allProjects[currentIndex];
+
+  return (
+    <div className="relative">
+      {/* Project counter */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="font-mono text-sm text-gray-500">
+          <span className="text-black font-bold">{String(currentIndex + 1).padStart(2, '0')}</span>
+          <span className="mx-2">/</span>
+          <span>{String(totalProjects).padStart(2, '0')}</span>
+        </div>
+
+        {/* Navigation buttons */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={goToPrev}
+            className="w-12 h-12 rounded-full border-2 border-black flex items-center justify-center bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-black hover:text-white hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+            aria-label="Previous project"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <button
+            onClick={goToNext}
+            className="w-12 h-12 rounded-full border-2 border-black flex items-center justify-center bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-black hover:text-white hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+            aria-label="Next project"
+          >
+            <ChevronRight size={24} />
+          </button>
+        </div>
+      </div>
+
+      {/* Carousel container */}
+      <div className="relative h-[400px] md:h-[350px] overflow-hidden">
+        <AnimatePresence initial={false} custom={direction} mode="wait">
+          <ProjectCard
+            key={currentProject.key}
+            project={currentProject}
+            direction={direction}
+            onPreview={handlePreview}
+          />
+        </AnimatePresence>
+      </div>
+
+      {/* Live Preview Modal */}
+      {previewUrl && (
+        <LivePreviewModal
+          url={previewUrl}
+          title={previewTitle}
+          isOpen={!!previewUrl}
+          onClose={closePreview}
+        />
+      )}
+
+      {/* Dot indicators */}
+      <div className="flex justify-center items-center gap-2 mt-8">
+        {allProjects.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentIndex([index, index > currentIndex ? 1 : -1])}
+            className={`w-3 h-3 rounded-full border-2 border-black transition-all ${index === currentIndex
+              ? 'bg-black scale-110'
+              : 'bg-white hover:bg-gray-200'
+              }`}
+            aria-label={`Go to project ${index + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
 }
