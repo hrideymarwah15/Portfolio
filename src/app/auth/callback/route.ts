@@ -7,14 +7,32 @@ export async function GET(request: Request) {
   const next = searchParams.get("next") ?? "/dashboard";
 
   if (code) {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    
-    if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+    try {
+      const supabase = await createClient();
+      const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+      if (!error) {
+        // Successfully exchanged code, redirect to dashboard
+        return NextResponse.redirect(`${origin}${next}`);
+      }
+
+      console.error("Auth exchange error:", error.message);
+      return NextResponse.redirect(`${origin}/auth/error?error=${encodeURIComponent(error.message)}`);
+    } catch (err) {
+      console.error("Auth callback error:", err);
+      return NextResponse.redirect(`${origin}/auth/error?error=ServerError`);
     }
   }
 
+  // No code provided - might be a direct visit or error
+  const error = searchParams.get("error");
+  const errorDescription = searchParams.get("error_description");
+
+  if (error) {
+    return NextResponse.redirect(`${origin}/auth/error?error=${encodeURIComponent(errorDescription || error)}`);
+  }
+
   // Return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/error?error=AuthError`);
+  return NextResponse.redirect(`${origin}/auth/error?error=NoAuthCode`);
 }
+
