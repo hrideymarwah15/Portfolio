@@ -37,7 +37,6 @@ interface ProjectDB {
   tag: string;
   tag_color: string;
   link: string | null;
-  live_url: string | null;
   github_repo: string | null;
   github_stars: number | null;
   visible: boolean;
@@ -77,7 +76,6 @@ export interface Project {
   tag: string;
   tagColor: string;
   link: string | null;
-  liveUrl: string | null;
   githubRepo: string | null;
   githubStars: number | null;
   isVisible: boolean;
@@ -118,7 +116,6 @@ function mapProject(p: ProjectDB): Project {
     tag: p.tag,
     tagColor: p.tag_color,
     link: p.link,
-    liveUrl: p.live_url,
     githubRepo: p.github_repo,
     githubStars: p.github_stars,
     isVisible: p.visible,
@@ -336,7 +333,6 @@ export interface ProjectInput {
   tag: string;
   tagColor: string;
   link?: string | null;
-  liveUrl?: string | null;
   githubRepo?: string | null;
   githubStars?: number | null;
   isVisible?: boolean;
@@ -354,7 +350,6 @@ export async function createProject(project: ProjectInput): Promise<Project | nu
       tag: project.tag,
       tag_color: project.tagColor,
       link: project.link ?? null,
-      live_url: project.liveUrl ?? null,
       github_repo: project.githubRepo ?? null,
       github_stars: project.githubStars ?? null,
       visible: project.isVisible ?? true,
@@ -381,7 +376,6 @@ export async function updateProject(
   if (project.tag !== undefined) updates.tag = project.tag;
   if (project.tagColor !== undefined) updates.tag_color = project.tagColor;
   if (project.link !== undefined) updates.link = project.link;
-  if (project.liveUrl !== undefined) updates.live_url = project.liveUrl;
   if (project.githubRepo !== undefined) updates.github_repo = project.githubRepo;
   if (project.githubStars !== undefined) updates.github_stars = project.githubStars;
   if (project.isVisible !== undefined) updates.visible = project.isVisible;

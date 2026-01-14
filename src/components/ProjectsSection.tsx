@@ -2,8 +2,7 @@
 
 import { useRef, useState, useCallback, ReactNode } from "react";
 import { motion, useInView, AnimatePresence, Variants } from "framer-motion";
-import { ChevronLeft, ChevronRight, Github, Star, ExternalLink, Eye } from "lucide-react";
-import LivePreviewModal from "./LivePreviewModal";
+import { ChevronLeft, ChevronRight, Github, Star, ExternalLink } from "lucide-react";
 
 // Exported interfaces for use in other components
 export interface ProjectItem {
@@ -13,7 +12,6 @@ export interface ProjectItem {
   tag: string;
   tagColor: string;
   link?: string;
-  liveUrl?: string | null;
 }
 
 export interface GitHubRepoItem {
@@ -108,11 +106,9 @@ const tearVariants: Variants = {
 function ProjectCard({
   project,
   direction,
-  onPreview
 }: {
   project: CarouselProject;
   direction: number;
-  onPreview: (url: string, title: string) => void;
 }) {
   if (project.type === "manual") {
     const data = project.data;
@@ -156,21 +152,12 @@ function ProjectCard({
 
             {/* Action Buttons */}
             <div className="mt-auto flex flex-wrap gap-3">
-              {(data.liveUrl || data.link) && (
-                <button
-                  onClick={() => onPreview(data.liveUrl || data.link!, data.title)}
-                  className="inline-flex items-center gap-3 px-6 py-3 bg-black text-white font-mono font-bold text-sm border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:text-black hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
-                >
-                  <Eye size={16} />
-                  LIVE PREVIEW
-                </button>
-              )}
               {data.link && (
                 <a
                   href={data.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-3 px-6 py-3 bg-white text-black font-mono font-bold text-sm border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-black hover:text-white hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+                  className="inline-flex items-center gap-3 px-6 py-3 bg-black text-white font-mono font-bold text-sm border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:text-black hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
                 >
                   <ExternalLink size={16} />
                   VIEW PROJECT
@@ -179,48 +166,16 @@ function ProjectCard({
             </div>
           </div>
 
-          {/* Right Preview Box - Live iframe */}
-          <div
-            className="hidden md:block w-72 h-64 border-2 border-black bg-white flex-shrink-0 relative overflow-hidden cursor-pointer group"
-            onClick={() => {
-              const previewUrl = data.liveUrl || data.link;
-              if (previewUrl) onPreview(previewUrl, data.title);
-            }}
-          >
-            {(data.liveUrl || data.link) && !(data.liveUrl || data.link)?.includes('github.com') ? (
-              <>
-                {/* Scaled iframe */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                  <iframe
-                    src={data.liveUrl || data.link}
-                    title={`${data.title} preview`}
-                    className="w-[1280px] h-[800px] origin-top-left border-0"
-                    style={{
-                      transform: 'scale(0.225)',
-                      pointerEvents: 'none',
-                    }}
-                    loading="lazy"
-                    sandbox="allow-scripts allow-same-origin"
-                  />
-                </div>
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                  <div className="text-white text-center">
-                    <Eye size={24} className="mx-auto mb-2" />
-                    <p className="text-xs font-mono font-bold">EXPAND</p>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
-                <div className="text-center p-4">
-                  <ExternalLink size={32} className="mx-auto mb-2 text-gray-300" />
-                  <p className="text-xs font-mono text-gray-400">
-                    {(data.liveUrl || data.link) ? "Open Externally" : "No preview"}
-                  </p>
-                </div>
+          {/* Right Preview Box */}
+          <div className="hidden md:block w-72 h-64 border-2 border-black bg-gray-50 flex-shrink-0 relative overflow-hidden">
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center p-4">
+                <ExternalLink size={32} className="mx-auto mb-2 text-gray-300" />
+                <p className="text-xs font-mono text-gray-400">
+                  {data.link ? "Click VIEW PROJECT" : "No link"}
+                </p>
               </div>
-            )}
+            </div>
           </div>
 
           {/* Decorative corner fold */}
@@ -304,13 +259,15 @@ function ProjectCard({
           {/* Action Buttons */}
           <div className="mt-auto flex flex-wrap gap-3">
             {repo.homepage && (
-              <button
-                onClick={() => onPreview(repo.homepage!, repo.name)}
+              <a
+                href={repo.homepage}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 px-6 py-3 bg-black text-white font-mono font-bold text-sm border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:text-black hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
               >
-                <Eye size={16} />
-                LIVE PREVIEW
-              </button>
+                <ExternalLink size={16} />
+                VISIT SITE
+              </a>
             )}
             <a
               href={repo.html_url}
@@ -324,47 +281,16 @@ function ProjectCard({
           </div>
         </div>
 
-        {/* Right Preview Box - Live iframe */}
-        <div
-          className="hidden md:block w-72 h-64 border-2 border-black bg-white flex-shrink-0 relative overflow-hidden cursor-pointer group"
-          onClick={() => {
-            if (repo.homepage) onPreview(repo.homepage, repo.name);
-          }}
-        >
-          {repo.homepage && !repo.homepage.includes('github.com') ? (
-            <>
-              {/* Scaled iframe */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <iframe
-                  src={repo.homepage}
-                  title={`${repo.name} preview`}
-                  className="w-[1280px] h-[800px] origin-top-left border-0"
-                  style={{
-                    transform: 'scale(0.225)',
-                    pointerEvents: 'none',
-                  }}
-                  loading="lazy"
-                  sandbox="allow-scripts allow-same-origin"
-                />
-              </div>
-              {/* Hover overlay */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-                <div className="text-white text-center">
-                  <Eye size={24} className="mx-auto mb-2" />
-                  <p className="text-xs font-mono font-bold">EXPAND</p>
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
-              <div className="text-center p-4">
-                <Github size={32} className="mx-auto mb-2 text-gray-300" />
-                <p className="text-xs font-mono text-gray-400">
-                  {repo.homepage ? "Open Externally" : "Code only"}
-                </p>
-              </div>
+        {/* Right Preview Box */}
+        <div className="hidden md:block w-72 h-64 border-2 border-black bg-gray-50 flex-shrink-0 relative overflow-hidden">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center p-4">
+              <Github size={32} className="mx-auto mb-2 text-gray-300" />
+              <p className="text-xs font-mono text-gray-400">
+                {repo.homepage ? "Click VISIT SITE" : "Code only"}
+              </p>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Decorative corner fold */}
@@ -386,18 +312,6 @@ interface ProjectsSectionProps {
 
 export default function ProjectsSection({ projects, githubRepos = [] }: ProjectsSectionProps) {
   const [[currentIndex, direction], setCurrentIndex] = useState([0, 0]);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [previewTitle, setPreviewTitle] = useState<string>("");
-
-  const handlePreview = (url: string, title: string) => {
-    setPreviewUrl(url);
-    setPreviewTitle(title);
-  };
-
-  const closePreview = () => {
-    setPreviewUrl(null);
-    setPreviewTitle("");
-  };
 
   // Combine all projects into a single array
   const allProjects: CarouselProject[] = [
@@ -473,20 +387,9 @@ export default function ProjectsSection({ projects, githubRepos = [] }: Projects
             key={currentProject.key}
             project={currentProject}
             direction={direction}
-            onPreview={handlePreview}
           />
         </AnimatePresence>
       </div>
-
-      {/* Live Preview Modal */}
-      {previewUrl && (
-        <LivePreviewModal
-          url={previewUrl}
-          title={previewTitle}
-          isOpen={!!previewUrl}
-          onClose={closePreview}
-        />
-      )}
 
       {/* Dot indicators */}
       <div className="flex justify-center items-center gap-2 mt-8">

@@ -502,19 +502,6 @@ function ProjectCard({
                 placeholder="https://github.com/..."
               />
             </div>
-
-            <div>
-              <label className="block text-xs font-mono text-gray-500 uppercase mb-1">
-                Live Preview URL
-              </label>
-              <input
-                type="url"
-                value={localData.liveUrl || ""}
-                onChange={(e) => setLocalData({ ...localData, liveUrl: e.target.value })}
-                className="w-full px-3 py-2 border-2 border-black font-mono focus:outline-none focus:ring-2 focus:ring-black"
-                placeholder="https://myproject.vercel.app"
-              />
-            </div>
           </div>
 
           <div>
