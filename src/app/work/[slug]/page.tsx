@@ -10,7 +10,7 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   // Await params here (Next.js 15+ requirement, good practice generally)
   const { slug } = await params;
   const project = await projectsService.getBySlug(slug);
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function CaseStudyPage({ params }: { params: { slug: string } }) {
+export default async function CaseStudyPage({ params }: { params: Promise<{ slug: string }> }) {
    const { slug } = await params;
   const project = await projectsService.getBySlug(slug);
 

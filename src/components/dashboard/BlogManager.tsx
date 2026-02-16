@@ -18,7 +18,8 @@ import {
   updateBlogPostAction,
   deleteBlogPostAction,
 } from "@/lib/actions";
-import type { BlogPost } from "@/lib/db";
+import type { BlogPost } from "@/lib/types";
+import type { BlogPostInput } from "@/lib/db";
 
 interface BlogManagerProps {
   initialPosts: BlogPost[];
@@ -46,7 +47,7 @@ export default function BlogManager({ initialPosts }: BlogManagerProps) {
     });
   };
 
-  const handleUpdate = (id: string, data: Partial<BlogPost>) => {
+  const handleUpdate = (id: string, data: Partial<BlogPostInput>) => {
     startTransition(async () => {
       const result = await updateBlogPostAction(id, data);
 
@@ -218,7 +219,7 @@ export default function BlogManager({ initialPosts }: BlogManagerProps) {
 
 interface BlogEditorProps {
   post: BlogPost;
-  onSave: (data: Partial<BlogPost>) => void;
+  onSave: (data: Partial<BlogPostInput>) => void;
   onBack: () => void;
   isPending: boolean;
 }
@@ -227,7 +228,7 @@ function BlogEditor({ post, onSave, onBack, isPending }: BlogEditorProps) {
   const [title, setTitle] = useState(post.title);
   const [slug, setSlug] = useState(post.slug);
   const [excerpt, setExcerpt] = useState(post.excerpt || "");
-  const [content, setContent] = useState(post.content);
+  const [content, setContent] = useState(post.contentMdx);
   const [tags, setTags] = useState(post.tags.join(", "));
   const [coverImage, setCoverImage] = useState(post.coverImage || "");
 

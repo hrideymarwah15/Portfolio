@@ -4,8 +4,10 @@ import { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Github, Globe, Layers, Zap, Database } from "lucide-react";
 import Link from "next/link";
-import mermaid from "mermaid";
+// import mermaid from "mermaid"; // Removed static import
 import { Project } from "@/lib/types";
+
+import Script from "next/script";
 
 interface CaseStudyClientProps {
   project: Project;
@@ -15,12 +17,31 @@ export default function CaseStudyClient({ project }: CaseStudyClientProps) {
   const mermaidRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: "neutral",
-      fontFamily: "Geist Mono, monospace",
-    });
-    mermaid.contentLoaded();
+    // Re-run mermaid content loaded when component mounts or updates
+    const initMermaid = () => {
+       if (typeof window !== "undefined" && (window as any).mermaid) {
+          (window as any).mermaid.contentLoaded();
+       }
+    };
+    
+    // Check if already loaded
+    if ((window as any).mermaid) {
+        initMermaid();
+    } else {
+        // If not, set up a listener or interval (simple polling for this case)
+        const check = setInterval(() => {
+             if ((window as any).mermaid) {
+                 clearInterval(check);
+                 (window as any).mermaid.initialize({
+                    startOnLoad: true,
+                    theme: "neutral",
+                    fontFamily: "Geist Mono, monospace",
+                 });
+                 initMermaid();
+             }
+        }, 500);
+        return () => clearInterval(check);
+    }
   }, []);
 
   // Mock Mermaid diagram if not in DB yet
@@ -35,6 +56,11 @@ export default function CaseStudyClient({ project }: CaseStudyClientProps) {
   `;
 
   return (
+    <>
+      <Script 
+        src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js" 
+        strategy="lazyOnload"
+      />
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] pt-24 pb-12 px-6">
       <div className="max-w-4xl mx-auto">
         <Link
@@ -147,5 +173,6 @@ export default function CaseStudyClient({ project }: CaseStudyClientProps) {
         </section>
       </div>
     </main>
+    </>
   );
 }

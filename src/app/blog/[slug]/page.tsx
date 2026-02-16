@@ -43,7 +43,7 @@ export default async function BlogPostPage({ params }: Props) {
     breaks: true,
   });
 
-  const htmlContent = await marked(post.content);
+  const htmlContent = await marked(post.contentMdx);
 
   return (
     <main className="min-h-screen bg-white">

@@ -11,7 +11,7 @@ function mapProject(p: ProjectDB): Project {
     description: p.description,
     problem: p.problem,
     outcome: p.outcome,
-    techStack: p.tech_stack,
+    techStack: p.tech_stack || [],
     tag: p.tag,
     tagColor: p.tag_color,
     link: p.link,
