@@ -1,19 +1,55 @@
 @import "tailwindcss";
 
+/* ============================================
+   SKETCH AESTHETIC DESIGN SYSTEM
+   Light + Dark Theme Tokens
+   ============================================ */
+
 :root {
   --background: #ffffff;
   --foreground: #000000;
+  --muted: #666666;
+  --muted-foreground: #888888;
+  --border: #000000;
   --accent: #1a1a1a;
   --highlight: #ffeb3b;
+  --admin-bg: #f4f4f4;
+  --card-bg: #ffffff;
+  --card-hover: #f5f5f5;
+  --input-bg: #ffffff;
+  --input-border: #000000;
   --font-sans: var(--font-inter);
   --font-mono: var(--font-fira-code);
+}
+
+[data-theme="dark"] {
+  --background: #0e0e0e;
+  --foreground: #f5f5f5;
+  --muted: #a0a0a0;
+  --muted-foreground: #888888;
+  --border: #f5f5f5;
+  --accent: #1a1a1a;
+  --highlight: #ffeb3b;
+  --admin-bg: #151515;
+  --card-bg: #1a1a1a;
+  --card-hover: #252525;
+  --input-bg: #1a1a1a;
+  --input-border: #f5f5f5;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
   --color-accent: var(--accent);
   --color-highlight: var(--highlight);
+  --color-admin-bg: var(--admin-bg);
+  --color-card-bg: var(--card-bg);
+  --color-card-hover: var(--card-hover);
+  --color-input-bg: var(--input-bg);
+  --color-input-border: var(--input-border);
   --font-sans: var(--font-inter);
   --font-mono: var(--font-fira-code);
 }
@@ -26,39 +62,127 @@ body {
   line-height: 1.6;
 }
 
-/* Paper noise texture */
+/* ============================================
+   GLOBAL TEXTURES - Paper Noise
+   ============================================ */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: 9999;
   pointer-events: none;
-  opacity: 0.04;
+  opacity: 0.05;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
-/* Yellow marker highlight */
+[data-theme="dark"] body::before {
+  opacity: 0.08;
+}
+
+/* ============================================
+   GRID BACKGROUND
+   ============================================ */
+.bg-grid {
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 30px 30px;
+  opacity: 0.05;
+}
+
+/* ============================================
+   SKETCH BORDERS
+   ============================================ */
+.sketch-border {
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+}
+
+.card-border {
+  border-radius: 20px 15px 20px 15px;
+}
+
+.tech-border {
+  border-radius: 2px 20px 3px 20px / 20px 3px 20px 3px;
+}
+
+.stats-border {
+  border-radius: 3px 15px 5px 15px / 15px 5px 15px 5px;
+}
+
+/* ============================================
+   HARD SHADOWS
+   ============================================ */
+.shadow-hard {
+  box-shadow: 4px 4px 0 var(--foreground);
+}
+
+.shadow-hard-sm {
+  box-shadow: 2px 2px 0 var(--foreground);
+}
+
+.shadow-hard-lg {
+  box-shadow: 6px 6px 0 var(--foreground);
+}
+
+[data-theme="dark"] .shadow-hard {
+  box-shadow: 4px 4px 0 rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .shadow-hard-sm {
+  box-shadow: 2px 2px 0 rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .shadow-hard-lg {
+  box-shadow: 6px 6px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* ============================================
+   YELLOW MARKER HIGHLIGHT
+   Never recolor. Never theme.
+   ============================================ */
 @utility marker-yellow {
   background-image: linear-gradient(120deg, #ffeb3b88 0%, #ffeb3b88 100%);
   background-repeat: no-repeat;
   background-size: 100% 50%;
   background-position: 0 85%;
   transform: skewX(-2deg);
+  mix-blend-mode: multiply;
 }
 
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
+/* Fix for dark mode - use overlay instead of multiply */
+[data-theme="dark"] .marker-yellow {
+  mix-blend-mode: normal;
+  background-image: linear-gradient(120deg, #ffeb3b66 0%, #ffeb3b66 100%);
+}
 
+/* ============================================
+   STICKY NOTES - Never Inverted
+   Always stay light (physical paper)
+   ============================================ */
+.sticky-note {
+  background: #fff9c4;
+  color: #000000;
+  border: 2px solid #000000;
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  box-shadow: 4px 4px 0 #000000;
+}
+
+/* ============================================
+   SELECTION
+   ============================================ */
+::selection {
+  background: var(--highlight);
+  color: var(--foreground);
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
-}
-
-/* Selection */
-::selection {
-  background: var(--highlight);
-  color: var(--foreground);
 }

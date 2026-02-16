@@ -102,7 +102,7 @@ const tearVariants: Variants = {
   }),
 };
 
-// Project Card Component
+// Project Card Component - Theme aware
 function ProjectCard({
   project,
   direction,
@@ -123,7 +123,7 @@ function ProjectCard({
         className="absolute inset-0"
       >
         <div
-          className="relative bg-white border-2 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-full flex gap-6"
+          className="relative bg-[var(--card-bg)] border-2 border-[var(--border)] p-8 shadow-hard h-full flex gap-6"
           style={{ borderRadius: '20px 15px 20px 15px' }}
         >
           {/* Paper texture overlay */}
@@ -136,17 +136,17 @@ function ProjectCard({
 
           {/* Tag */}
           <div
-            className={`absolute top-4 right-4 px-4 py-2 font-mono font-bold text-xs border-2 border-black bg-white rotate-6 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${data.tagColor} z-10`}
+            className={`absolute top-4 right-4 px-4 py-2 font-mono font-bold text-xs border-2 border-[var(--border)] bg-[var(--background)] rotate-6 shadow-hard-sm ${data.tagColor} z-10`}
           >
             [{data.tag}]
           </div>
 
           {/* Left Content */}
           <div className="flex-1 flex flex-col min-w-0">
-            <h3 className="font-mono font-bold text-2xl md:text-3xl mb-4 pr-20 tracking-tight">
+            <h3 className="font-mono font-bold text-2xl md:text-3xl mb-4 pr-20 tracking-tight text-[var(--foreground)]">
               {data.title}
             </h3>
-            <p className="text-gray-600 text-lg mb-6 leading-relaxed">
+            <p className="text-[var(--muted)] text-lg mb-6 leading-relaxed">
               {data.problem}
             </p>
 
@@ -157,7 +157,7 @@ function ProjectCard({
                   href={data.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-3 px-6 py-3 bg-black text-white font-mono font-bold text-sm border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:text-black hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+                  className="inline-flex items-center gap-3 px-6 py-3 bg-[var(--foreground)] text-[var(--background)] font-mono font-bold text-sm border-2 border-[var(--border)] shadow-hard-sm hover:bg-[var(--background)] hover:text-[var(--foreground)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
                 >
                   <ExternalLink size={16} />
                   VIEW PROJECT
@@ -167,20 +167,18 @@ function ProjectCard({
           </div>
 
           {/* Right Preview Box */}
-          <div className="hidden md:block w-72 h-64 border-2 border-black bg-gray-50 flex-shrink-0 relative overflow-hidden">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center p-4">
-                <ExternalLink size={32} className="mx-auto mb-2 text-gray-300" />
-                <p className="text-xs font-mono text-gray-400">
-                  {data.link ? "Click VIEW PROJECT" : "No link"}
-                </p>
-              </div>
+          <div className="hidden md:flex w-72 h-64 border-2 border-[var(--border)] bg-[var(--card-hover)] flex-shrink-0 relative overflow-hidden items-center justify-center">
+            <div className="text-center p-4">
+              <ExternalLink size={32} className="mx-auto mb-2 text-[var(--muted)]" />
+              <p className="text-xs font-mono text-[var(--muted)]">
+                {data.link ? "Click VIEW PROJECT" : "No link"}
+              </p>
             </div>
           </div>
 
           {/* Decorative corner fold */}
           <div
-            className="absolute top-0 right-0 w-12 h-12 bg-gray-100 border-l-2 border-b-2 border-black"
+            className="absolute top-0 right-0 w-12 h-12 bg-[var(--card-hover)] border-l-2 border-b-2 border-[var(--border)]"
             style={{
               clipPath: 'polygon(100% 0, 0 0, 100% 100%)',
             }}
@@ -203,7 +201,7 @@ function ProjectCard({
       className="absolute inset-0"
     >
       <div
-        className="relative bg-white border-2 border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-full flex gap-6"
+        className="relative bg-[var(--card-bg)] border-2 border-[var(--border)] p-8 shadow-hard h-full flex gap-6"
         style={{ borderRadius: '20px 15px 20px 15px' }}
       >
         {/* Paper texture overlay */}
@@ -217,11 +215,11 @@ function ProjectCard({
         {/* GitHub badge + stats */}
         <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
           {repo.language && (
-            <span className="px-3 py-1.5 font-mono font-bold text-xs border-2 border-black bg-gray-100 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+            <span className="px-3 py-1.5 font-mono font-bold text-xs border-2 border-[var(--border)] bg-[var(--card-hover)] text-[var(--foreground)] shadow-hard-sm">
               {repo.language}
             </span>
           )}
-          <span className="px-3 py-1.5 font-mono font-bold text-xs border-2 border-black bg-white flex items-center gap-1.5 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+          <span className="px-3 py-1.5 font-mono font-bold text-xs border-2 border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] flex items-center gap-1.5 shadow-hard-sm">
             <Star size={14} className="fill-yellow-400 text-yellow-400" />
             {repo.stargazers_count}
           </span>
@@ -230,15 +228,15 @@ function ProjectCard({
         {/* Left Content */}
         <div className="flex-1 flex flex-col min-w-0">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full border-2 border-black flex items-center justify-center bg-gray-50">
-              <Github size={20} />
+            <div className="w-10 h-10 rounded-full border-2 border-[var(--border)] flex items-center justify-center bg-[var(--card-hover)]">
+              <Github size={20} className="text-[var(--foreground)]" />
             </div>
-            <h3 className="font-mono font-bold text-2xl md:text-3xl tracking-tight">
+            <h3 className="font-mono font-bold text-2xl md:text-3xl tracking-tight text-[var(--foreground)]">
               {repo.name}
             </h3>
           </div>
 
-          <p className="text-gray-600 text-lg mb-6 leading-relaxed">
+          <p className="text-[var(--muted)] text-lg mb-6 leading-relaxed">
             {repo.description || "No description available"}
           </p>
 
@@ -248,7 +246,7 @@ function ProjectCard({
               {repo.topics.slice(0, 5).map((topic) => (
                 <span
                   key={topic}
-                  className="px-3 py-1 text-xs font-mono font-bold bg-gray-100 text-gray-700 border border-gray-300"
+                  className="px-3 py-1 text-xs font-mono font-bold bg-[var(--card-hover)] text-[var(--muted)] border border-[var(--muted)]"
                 >
                   #{topic}
                 </span>
@@ -263,7 +261,7 @@ function ProjectCard({
                 href={repo.homepage}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-6 py-3 bg-black text-white font-mono font-bold text-sm border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:text-black hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+                className="inline-flex items-center gap-3 px-6 py-3 bg-[var(--foreground)] text-[var(--background)] font-mono font-bold text-sm border-2 border-[var(--border)] shadow-hard-sm hover:bg-[var(--background)] hover:text-[var(--foreground)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
               >
                 <ExternalLink size={16} />
                 VISIT SITE
@@ -273,7 +271,7 @@ function ProjectCard({
               href={repo.html_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-6 py-3 bg-white text-black font-mono font-bold text-sm border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-black hover:text-white hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+              className="inline-flex items-center gap-3 px-6 py-3 bg-[var(--background)] text-[var(--foreground)] font-mono font-bold text-sm border-2 border-[var(--border)] shadow-hard-sm hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all"
             >
               <Github size={16} />
               VIEW CODE
@@ -282,20 +280,18 @@ function ProjectCard({
         </div>
 
         {/* Right Preview Box */}
-        <div className="hidden md:block w-72 h-64 border-2 border-black bg-gray-50 flex-shrink-0 relative overflow-hidden">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center p-4">
-              <Github size={32} className="mx-auto mb-2 text-gray-300" />
-              <p className="text-xs font-mono text-gray-400">
-                {repo.homepage ? "Click VISIT SITE" : "Code only"}
-              </p>
-            </div>
+        <div className="hidden md:flex w-72 h-64 border-2 border-[var(--border)] bg-[var(--card-hover)] flex-shrink-0 relative overflow-hidden items-center justify-center">
+          <div className="text-center p-4">
+            <Github size={32} className="mx-auto mb-2 text-[var(--muted)]" />
+            <p className="text-xs font-mono text-[var(--muted)]">
+              {repo.homepage ? "Click VISIT SITE" : "Code only"}
+            </p>
           </div>
         </div>
 
         {/* Decorative corner fold */}
         <div
-          className="absolute top-0 right-0 w-12 h-12 bg-gray-100 border-l-2 border-b-2 border-black z-10"
+          className="absolute top-0 right-0 w-12 h-12 bg-[var(--card-hover)] border-l-2 border-b-2 border-[var(--border)] z-10"
           style={{
             clipPath: 'polygon(100% 0, 0 0, 100% 100%)',
           }}
@@ -343,8 +339,8 @@ export default function ProjectsSection({ projects, githubRepos = [] }: Projects
   if (totalProjects === 0) {
     return (
       <div className="text-center py-16">
-        <div className="font-mono text-gray-400 mb-4">// NO PROJECTS YET</div>
-        <p className="text-gray-500">Add projects in the admin panel to display them here.</p>
+        <div className="font-mono text-[var(--muted)] mb-4">// NO PROJECTS YET</div>
+        <p className="text-[var(--muted)]">Add projects in the admin panel to display them here.</p>
       </div>
     );
   }
@@ -355,8 +351,8 @@ export default function ProjectsSection({ projects, githubRepos = [] }: Projects
     <div className="relative">
       {/* Project counter */}
       <div className="flex items-center justify-between mb-6">
-        <div className="font-mono text-sm text-gray-500">
-          <span className="text-black font-bold">{String(currentIndex + 1).padStart(2, '0')}</span>
+        <div className="font-mono text-sm text-[var(--muted)]">
+          <span className="text-[var(--foreground)] font-bold">{String(currentIndex + 1).padStart(2, '0')}</span>
           <span className="mx-2">/</span>
           <span>{String(totalProjects).padStart(2, '0')}</span>
         </div>
@@ -365,14 +361,14 @@ export default function ProjectsSection({ projects, githubRepos = [] }: Projects
         <div className="flex items-center gap-3">
           <button
             onClick={goToPrev}
-            className="w-12 h-12 rounded-full border-2 border-black flex items-center justify-center bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-black hover:text-white hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+            className="w-12 h-12 rounded-full border-2 border-[var(--border)] flex items-center justify-center bg-[var(--background)] text-[var(--foreground)] shadow-hard-sm hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
             aria-label="Previous project"
           >
             <ChevronLeft size={24} />
           </button>
           <button
             onClick={goToNext}
-            className="w-12 h-12 rounded-full border-2 border-black flex items-center justify-center bg-white shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-black hover:text-white hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+            className="w-12 h-12 rounded-full border-2 border-[var(--border)] flex items-center justify-center bg-[var(--background)] text-[var(--foreground)] shadow-hard-sm hover:bg-[var(--foreground)] hover:text-[var(--background)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
             aria-label="Next project"
           >
             <ChevronRight size={24} />
@@ -397,9 +393,9 @@ export default function ProjectsSection({ projects, githubRepos = [] }: Projects
           <button
             key={index}
             onClick={() => setCurrentIndex([index, index > currentIndex ? 1 : -1])}
-            className={`w-3 h-3 rounded-full border-2 border-black transition-all ${index === currentIndex
-              ? 'bg-black scale-110'
-              : 'bg-white hover:bg-gray-200'
+            className={`w-3 h-3 rounded-full border-2 border-[var(--border)] transition-all ${index === currentIndex
+              ? 'bg-[var(--foreground)] scale-110'
+              : 'bg-[var(--background)] hover:bg-[var(--card-hover)]'
               }`}
             aria-label={`Go to project ${index + 1}`}
           />

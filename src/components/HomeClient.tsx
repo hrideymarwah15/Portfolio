@@ -1,10 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Mail, Github, Linkedin } from "lucide-react";
-import ProjectsSection, { ScrollEntrance, ProjectItem } from "@/components/ProjectsSection";
-import TechStackSection from "@/components/TechStackSection";
-import MessageForm from "@/components/MessageForm";
+import Image from "next/image";
 
 interface SiteData {
   hero: {
@@ -52,25 +49,35 @@ interface HomeClientProps {
   data: SiteData;
 }
 
-export default function HomeClient({ data }: HomeClientProps) {
-  // Convert projects to the format expected by ProjectsSection
-  const projectsForSection: ProjectItem[] = data.projects.map((p) => ({
-    title: p.title,
-    problem: p.problem,
-    outcome: p.outcome,
-    tag: p.tag,
-    tagColor: p.tagColor,
-    link: p.link || undefined,
-  }));
-
+// ScrollEntrance for scroll-triggered animations
+function ScrollEntrance({
+  children,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+}) {
   return (
-    <main className="min-h-screen bg-white text-black">
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.6, delay }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export default function HomeClient({ data }: HomeClientProps) {
+  return (
+    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       {/* Grid Background */}
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.03]"
         style={{
           backgroundImage:
-            "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)",
+            "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)",
           backgroundSize: "30px 30px",
         }}
       />
@@ -84,29 +91,34 @@ export default function HomeClient({ data }: HomeClientProps) {
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
         >
-          {/* White background behind video */}
-          <div className="absolute inset-0 bg-white" />
+          {/* Background behind video */}
+          <div className="absolute inset-0 bg-[var(--background)]" />
 
           {/* Grid overlay matching site background */}
           <div
             className="absolute inset-0 pointer-events-none opacity-[0.03]"
             style={{
               backgroundImage:
-                "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)",
+                "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)",
               backgroundSize: "30px 30px",
             }}
           />
 
           <video
+            ref={(el: HTMLVideoElement | null) => {
+              if (el) {
+                el.play().catch(console.error);
+              }
+            }}
             autoPlay
             loop
             muted
             playsInline
-            className="h-full w-auto max-w-none object-cover object-left relative"
+            controls={false}
+            className="h-full w-auto max-w-none object-cover object-left relative opacity-90"
             style={{
               minHeight: "100%",
               transform: "translateX(10%)",
-              mixBlendMode: "multiply",
             }}
           >
             <source src="/coder-animation.mp4" type="video/mp4" />
@@ -118,10 +130,10 @@ export default function HomeClient({ data }: HomeClientProps) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
             className="max-w-xl"
           >
-            <h1 className="font-mono font-black text-4xl md:text-5xl lg:text-6xl tracking-tighter leading-[1.1] mb-6">
+            <h1 className="font-mono font-black text-4xl md:text-5xl lg:text-6xl tracking-tighter leading-[1.1] mb-6 text-[var(--foreground)]">
               {data.hero.headline1}
               <br />
               {data.hero.headline2}{" "}
@@ -130,29 +142,30 @@ export default function HomeClient({ data }: HomeClientProps) {
               </span>
               .
             </h1>
-            <p className="text-base md:text-lg text-gray-600 max-w-md leading-relaxed mb-8">
+            <p className="text-base md:text-lg text-[var(--muted)] max-w-md leading-relaxed mb-8">
               {data.hero.description}
             </p>
-            <motion.button
-              className="px-8 py-3 bg-black text-white font-mono font-bold text-lg border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:text-black hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
-              whileHover={{ scale: 1.02 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+
+            {/* CTA Button - Link to Work page */}
+            <a
+              href="/work"
+              className="inline-block px-8 py-3 border-2 border-[var(--border)] bg-[var(--foreground)] text-[var(--background)] font-mono font-bold text-sm hover:bg-[var(--background)] hover:text-[var(--foreground)] transition-colors shadow-hard"
             >
               {data.hero.ctaText}
-            </motion.button>
+            </a>
           </motion.div>
         </div>
 
         {/* Scroll indicator */}
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-10">
           <motion.div
-            className="w-6 h-10 border-2 border-black rounded-full flex justify-center pt-2"
+            className="w-6 h-10 border-2 border-[var(--border)] rounded-full flex justify-center pt-2"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
           >
             <motion.div
-              className="w-1.5 h-3 bg-black rounded-full"
+              className="w-1.5 h-3 bg-[var(--foreground)] rounded-full"
               animate={{ y: [0, 6, 0] }}
               transition={{ duration: 1.5, repeat: Infinity }}
             />
@@ -161,26 +174,30 @@ export default function HomeClient({ data }: HomeClientProps) {
       </section>
 
       {/* About Section */}
-      <section id="about" className="px-6 py-24 border-t border-dashed border-gray-300">
+      <section id="about" className="px-6 py-24 border-t border-dashed border-[var(--muted)]">
         <div className="max-w-5xl mx-auto">
           <ScrollEntrance delay={0.1}>
-            <span className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4 block">
+            <span className="text-xs font-mono text-[var(--muted)] uppercase tracking-widest mb-4 block">
               // ABOUT
             </span>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Avatar */}
               <div
-                className="relative w-full max-w-xs mx-auto lg:mx-0 aspect-square border-2 border-black bg-gray-100 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] overflow-hidden"
+                className="relative w-full max-w-xs mx-auto lg:mx-0 aspect-square border-2 border-[var(--border)] bg-[var(--accent)] shadow-hard overflow-hidden"
                 style={{
                   borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px",
                 }}
               >
                 {data.about.photoUrl ? (
-                  <img
-                    src={data.about.photoUrl}
-                    alt={data.about.name}
-                    className="w-full h-full object-cover"
-                  />
+                  <div className="relative w-full h-full">
+                    <Image
+                      src={data.about.photoUrl}
+                      alt={data.about.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                  </div>
                 ) : (
                   <>
                     <svg className="absolute inset-0 w-full h-full opacity-10">
@@ -189,7 +206,7 @@ export default function HomeClient({ data }: HomeClientProps) {
                         y1="0"
                         x2="100%"
                         y2="100%"
-                        stroke="black"
+                        stroke="currentColor"
                         strokeWidth="1"
                         strokeDasharray="4 4"
                       />
@@ -198,12 +215,12 @@ export default function HomeClient({ data }: HomeClientProps) {
                         y1="0"
                         x2="0"
                         y2="100%"
-                        stroke="black"
+                        stroke="currentColor"
                         strokeWidth="1"
                         strokeDasharray="4 4"
                       />
                     </svg>
-                    <div className="absolute inset-0 flex items-center justify-center font-mono text-gray-400 text-xs">
+                    <div className="absolute inset-0 flex items-center justify-center font-mono text-[var(--muted)] text-xs">
                       [PHOTO]
                     </div>
                   </>
@@ -212,7 +229,7 @@ export default function HomeClient({ data }: HomeClientProps) {
 
               {/* Content */}
               <div>
-                <h2 className="font-mono font-bold text-4xl md:text-5xl tracking-tighter mb-5 relative inline-block">
+                <h2 className="font-mono font-bold text-4xl md:text-5xl tracking-tighter mb-5 relative inline-block text-[var(--foreground)]">
                   {data.about.name}
                   <svg
                     className="absolute -bottom-2 left-0 w-full h-3"
@@ -221,7 +238,7 @@ export default function HomeClient({ data }: HomeClientProps) {
                   >
                     <motion.path
                       d="M2 8 Q 30 2 60 8 T 118 6"
-                      stroke="black"
+                      stroke="currentColor"
                       strokeWidth="3"
                       fill="none"
                       strokeLinecap="round"
@@ -232,13 +249,13 @@ export default function HomeClient({ data }: HomeClientProps) {
                     />
                   </svg>
                 </h2>
-                <p className="text-gray-600 leading-relaxed mb-6 mt-4">
+                <p className="text-[var(--muted)] leading-relaxed mb-6 mt-4">
                   {data.about.description}
                 </p>
 
                 {/* Stats */}
                 <div
-                  className="p-6 border-2 border-black bg-gray-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  className="p-6 border-2 border-[var(--border)] bg-[var(--accent)] shadow-hard"
                   style={{
                     borderRadius: "3px 15px 5px 15px / 15px 5px 15px 5px",
                   }}
@@ -247,12 +264,12 @@ export default function HomeClient({ data }: HomeClientProps) {
                     {data.about.stats.map((stat) => (
                       <div
                         key={stat.label}
-                        className="text-center p-3 border border-dashed border-gray-400 bg-white group hover:border-solid hover:border-black transition-all duration-200"
+                        className="text-center p-3 border border-dashed border-[var(--muted)] bg-[var(--background)] group hover:border-solid hover:border-[var(--border)] transition-all duration-200"
                       >
-                        <div className="text-[10px] font-mono text-gray-400 uppercase tracking-wider mb-1">
+                        <div className="text-[10px] font-mono text-[var(--muted)] uppercase tracking-wider mb-1">
                           {stat.label}
                         </div>
-                        <div className="text-lg font-mono font-black text-black">
+                        <div className="text-lg font-mono font-black text-[var(--foreground)]">
                           {stat.value}
                         </div>
                       </div>
@@ -265,128 +282,16 @@ export default function HomeClient({ data }: HomeClientProps) {
         </div>
       </section>
 
-      {/* Projects Section */}
-      <section id="projects" className="px-6 py-24 border-t border-dashed border-gray-300">
-        <div className="max-w-5xl mx-auto">
-          <ScrollEntrance delay={0.1}>
-            <span className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4 block">
-              // WORK
-            </span>
-            <h2 className="font-mono font-bold text-4xl md:text-5xl tracking-tighter mb-10">
-              PROJECTS
-            </h2>
-
-            <ProjectsSection projects={projectsForSection} githubRepos={[]} />
-          </ScrollEntrance>
-        </div>
-      </section>
-
-      {/* Skills Section */}
-      <section className="px-6 py-24 border-t border-dashed border-gray-300">
-        <div className="max-w-5xl mx-auto">
-          <ScrollEntrance delay={0.1}>
-            <span className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4 block">
-              // STACK
-            </span>
-            <h2 className="font-mono font-bold text-4xl md:text-5xl tracking-tighter mb-8">
-              WHAT I WORK WITH
-            </h2>
-
-            <TechStackSection skills={data.skills} />
-          </ScrollEntrance>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section id="contact" className="px-6 py-24 border-t border-dashed border-gray-300">
-        <div className="max-w-5xl mx-auto">
-          <ScrollEntrance delay={0.1}>
-            <span className="text-xs font-mono text-gray-400 uppercase tracking-widest mb-4 block">
-              // CONTACT
-            </span>
-            <h2 className="font-mono font-bold text-4xl md:text-5xl tracking-tighter mb-8">
-              GET IN TOUCH
-            </h2>
-
-            {/* Availability Badge */}
-            {data.availability.isAvailable ? (
-              <div className="inline-flex items-center gap-2 px-4 py-2 border rounded-full font-mono text-sm bg-green-50 border-green-200 text-green-700 mb-8">
-                <span className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                </span>
-                {data.availability.message}
-              </div>
-            ) : (
-              <div className="inline-flex items-center gap-2 px-4 py-2 border rounded-full font-mono text-sm bg-red-50 border-red-200 text-red-700 mb-8">
-                <span className="relative flex h-3 w-3">
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                </span>
-                {data.availability.message}
-              </div>
-            )}
-
-            {/* Two Column Layout: Contact + Message Form */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Contact Card */}
-              <div
-                className="relative bg-white border-2 border-black p-8 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] h-fit"
-                style={{
-                  borderRadius: "255px 15px 225px 15px / 15px 225px 15px 255px",
-                }}
-              >
-                {/* Tape decorations */}
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-200/80 rotate-[-2deg] border border-gray-300 z-10" />
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-32 h-6 bg-gray-200/50 rotate-[1deg] border border-gray-300" />
-
-                <p className="text-gray-600 mb-6">{data.contact.description}</p>
-
-                <div className="flex flex-wrap gap-3">
-                  <a
-                    href={`mailto:${data.contact.email}`}
-                    className="flex items-center gap-2 px-4 py-2 border-2 border-black font-mono font-bold text-sm hover:bg-black hover:text-white transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px]"
-                  >
-                    <Mail size={14} />
-                    EMAIL
-                  </a>
-                  <a
-                    href={data.contact.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 border-2 border-black font-mono font-bold text-sm hover:bg-black hover:text-white transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px]"
-                  >
-                    <Github size={14} />
-                    GITHUB
-                  </a>
-                  <a
-                    href={data.contact.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 border-2 border-black font-mono font-bold text-sm hover:bg-black hover:text-white transition-colors shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px]"
-                  >
-                    <Linkedin size={14} />
-                    LINKEDIN
-                  </a>
-                </div>
-              </div>
-
-              {/* Message Form */}
-              <MessageForm />
-            </div>
-          </ScrollEntrance>
-        </div>
-      </section>
-
       {/* Footer */}
-      <footer className="px-6 py-10 border-t-2 border-black">
-        <div className="max-w-5xl mx-auto flex justify-between items-center font-mono text-xs text-gray-500">
+      <footer className="px-6 py-10 border-t-2 border-[var(--border)] bg-[var(--background)]">
+        <div className="max-w-5xl mx-auto flex justify-between items-center font-mono text-xs text-[var(--muted)]">
           <span>
             © {new Date().getFullYear()} {data.meta.footerText}
           </span>
           <div className="flex items-center gap-4">
             <a
               href="/blog"
-              className="hover:text-black transition-colors"
+              className="hover:text-[var(--foreground)] transition-colors"
               title="Blog"
             >
               BLOG

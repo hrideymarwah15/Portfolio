@@ -24,7 +24,7 @@ import {
   syncProjectGitHubAction,
   syncAllProjectsGitHubAction,
 } from "@/lib/actions";
-import type { Project } from "@/lib/db";
+import type { Project } from "@/lib/types";
 
 interface GitHubRepo {
   id: number;
@@ -125,13 +125,17 @@ export default function ProjectsManager({ initialProjects }: ProjectsManagerProp
         // Create project with AI-analyzed data
         const result = await createProjectAction({
           title: repo.name,
+          slug: repo.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+          description: repo.description || "Imported project",
           problem: aiAnalysis?.problem || repo.description || "Add project description here...",
           outcome: aiAnalysis?.outcome || "",
+          techStack: [repo.language || "TypeScript"],
           tag: aiAnalysis?.tag || repo.language || "PROJECT",
           tagColor: aiAnalysis?.tagColor || "text-blue-600",
           link: repo.htmlUrl,
           githubRepo: repo.fullName,
           githubStars: repo.stars,
+          featured: false,
         });
 
         if (result.success && result.project) {
@@ -155,10 +159,14 @@ export default function ProjectsManager({ initialProjects }: ProjectsManagerProp
     startTransition(async () => {
       const result = await createProjectAction({
         title: "New Project",
+        slug: "new-project",
+        description: "Project description",
         problem: "Describe your project here...",
         outcome: "",
+        techStack: ["React", "TypeScript"],
         tag: "BUILD",
         tagColor: "text-blue-600",
+        featured: false,
       });
 
       if (result.success && result.project) {
@@ -170,6 +178,7 @@ export default function ProjectsManager({ initialProjects }: ProjectsManagerProp
 
   const handleUpdate = (id: string, data: Partial<Project>) => {
     startTransition(async () => {
+      // @ts-ignore
       const result = await updateProjectAction(id, data);
 
       if (result.success && result.project) {
@@ -205,7 +214,6 @@ export default function ProjectsManager({ initialProjects }: ProjectsManagerProp
   const handleSyncAll = () => {
     startTransition(async () => {
       await syncAllProjectsGitHubAction();
-      // Refresh the page to get updated data
       window.location.reload();
     });
   };
@@ -271,7 +279,6 @@ export default function ProjectsManager({ initialProjects }: ProjectsManagerProp
       {showRepoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] w-full max-w-4xl max-h-[80vh] flex flex-col">
-            {/* Modal Header */}
             <div className="flex items-center justify-between p-6 border-b-2 border-black">
               <h2 className="text-2xl font-mono font-bold">SELECT GITHUB REPO</h2>
               <button
@@ -282,7 +289,6 @@ export default function ProjectsManager({ initialProjects }: ProjectsManagerProp
               </button>
             </div>
 
-            {/* Search */}
             <div className="p-6 border-b-2 border-black">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
@@ -296,7 +302,6 @@ export default function ProjectsManager({ initialProjects }: ProjectsManagerProp
               </div>
             </div>
 
-            {/* Repos List */}
             <div className="flex-1 overflow-y-auto p-6">
               <div className="space-y-3">
                 {filteredRepos.length === 0 ? (
@@ -372,12 +377,17 @@ function ProjectCard({
   const handleSave = () => {
     onUpdate({
       title: localData.title,
+      slug: localData.slug,
+      description: localData.description,
       problem: localData.problem,
       outcome: localData.outcome,
+      techStack: localData.techStack,
       tag: localData.tag,
       tagColor: localData.tagColor,
       link: localData.link || undefined,
       githubRepo: localData.githubRepo || undefined,
+      featured: localData.featured,
+      visible: localData.visible,
     });
   };
 
@@ -392,10 +402,11 @@ function ProjectCard({
 
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h3 className="font-mono font-bold">{project.title}</h3>
-            <span className={`text-xs font-mono ${project.tagColor}`}>
-              [{project.tag}]
-            </span>
+             <h3 className="font-mono font-bold">{project.title}</h3>
+             {project.featured && <Star size={16} className="text-yellow-500 fill-yellow-500" />}
+             <span className={`text-xs font-mono ${project.tagColor}`}>
+                [{project.tag}]
+             </span>
           </div>
           {project.githubRepo && (
             <p className="text-xs text-gray-500 font-mono mt-1">
@@ -415,14 +426,14 @@ function ProjectCard({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onUpdate({ isVisible: !project.isVisible });
+              onUpdate({ visible: !project.visible });
             }}
-            className={`p-2 border-2 border-black transition-colors ${project.isVisible
+            className={`p-2 border-2 border-black transition-colors ${project.visible
               ? "bg-green-100 text-green-600"
               : "bg-gray-100 text-gray-400"
               }`}
           >
-            {project.isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+            {project.visible ? <Eye size={16} /> : <EyeOff size={16} />}
           </button>
 
           {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
@@ -444,20 +455,44 @@ function ProjectCard({
                 className="w-full px-3 py-2 border-2 border-black font-mono focus:outline-none focus:ring-2 focus:ring-black"
               />
             </div>
+            <div>
+              <label className="block text-xs font-mono text-gray-500 uppercase mb-1">
+                Slug (URL)
+              </label>
+              <input
+                type="text"
+                value={localData.slug}
+                onChange={(e) => setLocalData({ ...localData, slug: e.target.value })}
+                className="w-full px-3 py-2 border-2 border-black font-mono focus:outline-none focus:ring-2 focus:ring-black"
+              />
+            </div>
+          </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className="block text-xs font-mono text-gray-500 uppercase mb-1">
-                  Tag
-                </label>
-                <input
-                  type="text"
-                  value={localData.tag}
-                  onChange={(e) => setLocalData({ ...localData, tag: e.target.value })}
-                  className="w-full px-3 py-2 border-2 border-black font-mono focus:outline-none focus:ring-2 focus:ring-black"
-                />
-              </div>
-              <div>
+          <div>
+            <label className="block text-xs font-mono text-gray-500 uppercase mb-1">
+              Short Description
+            </label>
+            <input
+              type="text"
+              value={localData.description}
+              onChange={(e) => setLocalData({ ...localData, description: e.target.value })}
+              className="w-full px-3 py-2 border-2 border-black font-mono focus:outline-none focus:ring-2 focus:ring-black"
+             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-mono text-gray-500 uppercase mb-1">
+                Tag
+              </label>
+              <input
+                type="text"
+                value={localData.tag}
+                onChange={(e) => setLocalData({ ...localData, tag: e.target.value })}
+                className="w-full px-3 py-2 border-2 border-black font-mono focus:outline-none focus:ring-2 focus:ring-black"
+              />
+            </div>
+             <div>
                 <label className="block text-xs font-mono text-gray-500 uppercase mb-1">
                   Tag Color
                 </label>
@@ -472,20 +507,44 @@ function ProjectCard({
                     </option>
                   ))}
                 </select>
-              </div>
-            </div>
+             </div>
           </div>
+
+           <div>
+              <label className="block text-xs font-mono text-gray-500 uppercase mb-1">
+                Tech Stack (comma separated)
+              </label>
+              <input
+                type="text"
+                value={localData.techStack.join(", ")}
+                onChange={(e) => setLocalData({ ...localData, techStack: e.target.value.split(",").map(t => t.trim()) })}
+                className="w-full px-3 py-2 border-2 border-black font-mono focus:outline-none focus:ring-2 focus:ring-black"
+              />
+           </div>
 
           <div>
             <label className="block text-xs font-mono text-gray-500 uppercase mb-1">
-              Description
+              Case Study: Problem
             </label>
             <textarea
               value={localData.problem || ""}
               onChange={(e) => setLocalData({ ...localData, problem: e.target.value })}
               rows={3}
               className="w-full px-3 py-2 border-2 border-black font-mono focus:outline-none focus:ring-2 focus:ring-black resize-none"
-              placeholder="Describe your project..."
+              placeholder="Describe the problem..."
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-mono text-gray-500 uppercase mb-1">
+              Case Study: Outcome / Solution
+            </label>
+            <textarea
+              value={localData.outcome || ""}
+              onChange={(e) => setLocalData({ ...localData, outcome: e.target.value })}
+              rows={3}
+              className="w-full px-3 py-2 border-2 border-black font-mono focus:outline-none focus:ring-2 focus:ring-black resize-none"
+              placeholder="Describe the outcome..."
             />
           </div>
 
@@ -502,42 +561,53 @@ function ProjectCard({
                 placeholder="https://github.com/..."
               />
             </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-mono text-gray-500 uppercase mb-1">
-              GitHub Repo (owner/repo)
-            </label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={localData.githubRepo || ""}
-                onChange={(e) => setLocalData({ ...localData, githubRepo: e.target.value })}
-                className="flex-1 px-3 py-2 border-2 border-black font-mono focus:outline-none focus:ring-2 focus:ring-black"
-                placeholder="username/repo"
-              />
-              <button
-                onClick={onSync}
-                disabled={isPending || !project.githubRepo}
-                className="px-3 py-2 border-2 border-black hover:bg-gray-100 transition-colors disabled:opacity-50"
-              >
-                <RefreshCw size={18} className={isSyncing ? "animate-spin" : ""} />
-              </button>
-            </div>
-          </div>
-
-          {/* GitHub Stats */}
-          {project.githubStars !== null && (
-            <div className="p-3 bg-gray-50 border-2 border-dashed border-gray-300">
-              <p className="text-xs font-mono text-gray-500 uppercase mb-2">GitHub Stats</p>
-              <div className="flex gap-4 text-sm font-mono">
-                <span>
-                  <Star size={14} className="inline mr-1 text-yellow-500" />
-                  {project.githubStars} stars
-                </span>
+            <div>
+              <label className="block text-xs font-mono text-gray-500 uppercase mb-1">
+                GitHub Repo (owner/repo)
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={localData.githubRepo || ""}
+                  onChange={(e) => setLocalData({ ...localData, githubRepo: e.target.value })}
+                  className="flex-1 px-3 py-2 border-2 border-black font-mono focus:outline-none focus:ring-2 focus:ring-black"
+                  placeholder="username/repo"
+                />
+                <button
+                  onClick={onSync}
+                  disabled={isPending || !project.githubRepo}
+                  className="px-3 py-2 border-2 border-black hover:bg-gray-100 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw size={18} className={isSyncing ? "animate-spin" : ""} />
+                </button>
               </div>
             </div>
-          )}
+          </div>
+
+          {/* GitHub Stats & Featured */}
+          <div className="grid grid-cols-2 gap-4">
+             {project.githubStars !== null && (
+               <div className="p-3 bg-gray-50 border-2 border-dashed border-gray-300">
+                 <p className="text-xs font-mono text-gray-500 uppercase mb-2">GitHub Stats</p>
+                 <div className="flex gap-4 text-sm font-mono">
+                   <span>
+                     <Star size={14} className="inline mr-1 text-yellow-500" />
+                     {project.githubStars} stars
+                   </span>
+                 </div>
+               </div>
+             )}
+             <div className="flex items-center gap-2 p-3 border-2 border-dashed border-gray-300">
+                <input
+                  type="checkbox"
+                  id={`featured-${project.id}`}
+                  checked={localData.featured}
+                  onChange={(e) => setLocalData({ ...localData, featured: e.target.checked })}
+                  className="w-4 h-4 border-2 border-black"
+                />
+                <label htmlFor={`featured-${project.id}`} className="font-mono text-sm cursor-pointer">Featured Project</label>
+             </div>
+          </div>
 
           {/* Actions */}
           <div className="flex items-center justify-between pt-4 border-t border-dashed border-gray-300">

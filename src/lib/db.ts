@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { Project, ProjectDB, BlogPost, BlogPostDB } from "@/lib/types";
 
 // Types
 export interface HeroData {
@@ -22,42 +23,11 @@ export interface ContactData {
   linkedin: string;
   portfolio?: string;
   description: string;
+  // ... other contact fields
 }
 
 export interface MetaData {
   footerText: string;
-}
-
-// Database types (snake_case)
-interface ProjectDB {
-  id: string;
-  title: string;
-  problem: string;
-  outcome: string;
-  tag: string;
-  tag_color: string;
-  link: string | null;
-  github_repo: string | null;
-  github_stars: number | null;
-  visible: boolean;
-  sort_order: number;
-  created_at: string;
-  updated_at: string;
-}
-
-interface BlogPostDB {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  excerpt: string | null;
-  cover_image: string | null;
-  tags: string[];
-  published: boolean;
-  published_at: string | null;
-  author_id: string | null;
-  created_at: string;
-  updated_at: string;
 }
 
 interface AvailabilityDB {
@@ -65,38 +35,6 @@ interface AvailabilityDB {
   is_available: boolean;
   message: string;
   updated_at: string;
-}
-
-// Frontend types (camelCase)
-export interface Project {
-  id: string;
-  title: string;
-  problem: string;
-  outcome: string;
-  tag: string;
-  tagColor: string;
-  link: string | null;
-  githubRepo: string | null;
-  githubStars: number | null;
-  isVisible: boolean;
-  sortOrder: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  excerpt: string | null;
-  coverImage: string | null;
-  tags: string[];
-  published: boolean;
-  publishedAt: string | null;
-  authorId: string | null;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface Availability {
@@ -111,14 +49,19 @@ function mapProject(p: ProjectDB): Project {
   return {
     id: p.id,
     title: p.title,
+    slug: p.slug,
+    description: p.description,
     problem: p.problem,
     outcome: p.outcome,
+    techStack: p.tech_stack,
     tag: p.tag,
     tagColor: p.tag_color,
     link: p.link,
     githubRepo: p.github_repo,
     githubStars: p.github_stars,
-    isVisible: p.visible,
+    coverImage: p.cover_image,
+    featured: p.featured,
+    visible: p.visible,
     sortOrder: p.sort_order,
     createdAt: p.created_at,
     updatedAt: p.updated_at,
@@ -130,7 +73,7 @@ function mapBlogPost(p: BlogPostDB): BlogPost {
     id: p.id,
     title: p.title,
     slug: p.slug,
-    content: p.content,
+    contentMdx: p.content_mdx,
     excerpt: p.excerpt,
     coverImage: p.cover_image,
     tags: p.tags,
@@ -163,7 +106,7 @@ const defaultHero: HeroData = {
 const defaultAbout: AboutData = {
   name: "Hridey Marwah",
   description: "Full-stack developer passionate about creating impactful solutions.",
-  photoUrl: "/photo.jpg",
+  photoUrl: "/profile.jpeg",
   stats: [
     { label: "Years Experience", value: "3+" },
     { label: "Projects Completed", value: "20+" },
@@ -217,7 +160,13 @@ export async function getHero(): Promise<HeroData> {
 }
 
 export async function getAbout(): Promise<AboutData> {
-  return (await getSiteContent<AboutData>("about")) || defaultAbout;
+  const data = await getSiteContent<AboutData>("about");
+  if (!data) return defaultAbout;
+
+  return {
+    ...data,
+    photoUrl: (data.photoUrl && data.photoUrl !== "/photo.jpg") ? data.photoUrl : defaultAbout.photoUrl,
+  };
 }
 
 export async function getContact(): Promise<ContactData> {
@@ -328,14 +277,19 @@ export async function getProjectById(id: string): Promise<Project | null> {
 // Input type for creating projects (camelCase)
 export interface ProjectInput {
   title: string;
+  slug: string;
+  description: string;
   problem: string;
   outcome: string;
+  techStack: string[];
   tag: string;
   tagColor: string;
   link?: string | null;
   githubRepo?: string | null;
   githubStars?: number | null;
-  isVisible?: boolean;
+  coverImage?: string | null;
+  featured?: boolean;
+  visible?: boolean;
   sortOrder?: number;
 }
 
@@ -345,14 +299,19 @@ export async function createProject(project: ProjectInput): Promise<Project | nu
     .from("projects")
     .insert({
       title: project.title,
+      slug: project.slug,
+      description: project.description,
       problem: project.problem,
       outcome: project.outcome,
+      tech_stack: project.techStack,
       tag: project.tag,
       tag_color: project.tagColor,
       link: project.link ?? null,
       github_repo: project.githubRepo ?? null,
       github_stars: project.githubStars ?? null,
-      visible: project.isVisible ?? true,
+      cover_image: project.coverImage ?? null,
+      featured: project.featured ?? false,
+      visible: project.visible ?? true,
       sort_order: project.sortOrder ?? 0,
     })
     .select()
@@ -371,14 +330,19 @@ export async function updateProject(
   // Convert camelCase to snake_case
   const updates: Record<string, unknown> = {};
   if (project.title !== undefined) updates.title = project.title;
+  if (project.slug !== undefined) updates.slug = project.slug;
+  if (project.description !== undefined) updates.description = project.description;
   if (project.problem !== undefined) updates.problem = project.problem;
   if (project.outcome !== undefined) updates.outcome = project.outcome;
+  if (project.techStack !== undefined) updates.tech_stack = project.techStack;
   if (project.tag !== undefined) updates.tag = project.tag;
   if (project.tagColor !== undefined) updates.tag_color = project.tagColor;
   if (project.link !== undefined) updates.link = project.link;
   if (project.githubRepo !== undefined) updates.github_repo = project.githubRepo;
   if (project.githubStars !== undefined) updates.github_stars = project.githubStars;
-  if (project.isVisible !== undefined) updates.visible = project.isVisible;
+  if (project.coverImage !== undefined) updates.cover_image = project.coverImage;
+  if (project.featured !== undefined) updates.featured = project.featured;
+  if (project.visible !== undefined) updates.visible = project.visible;
   if (project.sortOrder !== undefined) updates.sort_order = project.sortOrder;
 
   const { data, error } = await supabase

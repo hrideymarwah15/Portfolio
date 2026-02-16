@@ -1,0 +1,95 @@
+// Keyboard animation states for different sections
+// Based on Naresh-Khatri/3d-portfolio implementation
+
+export type Section = "skills" | "experience" | "projects" | "contact";
+
+export const KEYBOARD_STATES = {
+    skills: {
+        desktop: {
+            scale: { x: 0.25, y: 0.25, z: 0.25 },
+            position: { x: 0, y: -40, z: 0 },
+            rotation: { x: 0, y: Math.PI / 12, z: 0 },
+        },
+        mobile: {
+            scale: { x: 0.3, y: 0.3, z: 0.3 },
+            position: { x: 0, y: -40, z: 0 },
+            rotation: { x: 0, y: Math.PI / 6, z: 0 },
+        },
+    },
+    experience: {
+        desktop: {
+            scale: { x: 0.2, y: 0.2, z: 0.2 },
+            position: { x: 300, y: -80, z: 0 },
+            rotation: { x: Math.PI / 12, y: -Math.PI / 4, z: 0 },
+        },
+        mobile: {
+            scale: { x: 0.25, y: 0.25, z: 0.25 },
+            position: { x: 0, y: 200, z: 0 },
+            rotation: { x: Math.PI / 6, y: -Math.PI / 6, z: 0 },
+        },
+    },
+    projects: {
+        desktop: {
+            scale: { x: 0.2, y: 0.2, z: 0.2 },
+            position: { x: -350, y: -100, z: 0 },
+            rotation: { x: Math.PI, y: Math.PI / 3, z: Math.PI },
+        },
+        mobile: {
+            scale: { x: 0.25, y: 0.25, z: 0.25 },
+            position: { x: 0, y: 200, z: 0 },
+            rotation: { x: Math.PI, y: Math.PI / 3, z: Math.PI },
+        },
+    },
+    contact: {
+        desktop: {
+            scale: { x: 0.15, y: 0.15, z: 0.15 },
+            position: { x: 350, y: -200, z: 0 },
+            rotation: { x: 0, y: 0, z: 0 },
+        },
+        mobile: {
+            scale: { x: 0.2, y: 0.2, z: 0.2 },
+            position: { x: 0, y: 200, z: 0 },
+            rotation: { x: Math.PI, y: Math.PI / 3, z: Math.PI },
+        },
+    },
+};
+
+export const getKeyboardState = ({
+    section,
+    isMobile,
+}: {
+    section: Section;
+    isMobile: boolean;
+}) => {
+    const baseTransform = KEYBOARD_STATES[section][isMobile ? "mobile" : "desktop"];
+
+    // Scale based on viewport width
+    const getScaleOffset = () => {
+        if (typeof window === "undefined") return 1;
+        
+        const width = window.innerWidth;
+        const DESKTOP_REF_WIDTH = 1280;
+        const MOBILE_REF_WIDTH = 390;
+
+        const targetScale = isMobile
+            ? width / MOBILE_REF_WIDTH
+            : width / DESKTOP_REF_WIDTH;
+
+        // Clamp values to prevent extremes
+        const minScale = isMobile ? 0.5 : 0.5;
+        const maxScale = isMobile ? 0.6 : 1.15;
+
+        return Math.min(Math.max(targetScale, minScale), maxScale);
+    };
+
+    const scaleOffset = getScaleOffset();
+
+    return {
+        ...baseTransform,
+        scale: {
+            x: Math.abs(baseTransform.scale.x * scaleOffset),
+            y: Math.abs(baseTransform.scale.y * scaleOffset),
+            z: Math.abs(baseTransform.scale.z * scaleOffset),
+        },
+    };
+};

@@ -1,28 +1,26 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface TechCategory {
     name: string;
-    shortName: string;
     skills: string[];
     bgColor: string;
-    tabColor: string;
+    textColor: string;
 }
 
 interface TechStackSectionProps {
     skills: string[];
 }
 
-// Category styling following design system
-const categoryStyles: Record<string, { bgColor: string; tabColor: string; shortName: string }> = {
-    "Languages": { bgColor: "#fff9c4", tabColor: "#1a1a1a", shortName: "LANGUAGES" },
-    "Frontend": { bgColor: "#ffcdd2", tabColor: "#c62828", shortName: "FRONTEND" },
-    "Backend": { bgColor: "#bbdefb", tabColor: "#1565c0", shortName: "BACKEND" },
-    "Database": { bgColor: "#c8e6c9", tabColor: "#2e7d32", shortName: "DATABASE" },
-    "DevOps & Tools": { bgColor: "#e1bee7", tabColor: "#7b1fa2", shortName: "DEVOPS" },
-    "Other": { bgColor: "#ffe0b2", tabColor: "#e65100", shortName: "OTHER" },
+// Sticky note colors - all with dark text for visibility
+const categoryStyles: Record<string, { bgColor: string; textColor: string }> = {
+    "Languages": { bgColor: "#fff9c4", textColor: "#1a1a1a" },      // Yellow
+    "Frontend": { bgColor: "#ffcdd2", textColor: "#1a1a1a" },       // Pink/Red
+    "Backend": { bgColor: "#bbdefb", textColor: "#1a1a1a" },        // Blue
+    "Database": { bgColor: "#c8e6c9", textColor: "#1a1a1a" },       // Green
+    "DevOps & Tools": { bgColor: "#e1bee7", textColor: "#1a1a1a" }, // Purple
+    "Other": { bgColor: "#ffe0b2", textColor: "#1a1a1a" },          // Orange
 };
 
 // Skill categorization map
@@ -71,217 +69,106 @@ function categorizeSkills(skills: string[]): TechCategory[] {
         .filter((cat) => grouped[cat]?.length > 0)
         .map((name) => ({
             name,
-            shortName: categoryStyles[name]?.shortName || name.toUpperCase(),
             skills: grouped[name],
             bgColor: categoryStyles[name]?.bgColor || "#f5f5f5",
-            tabColor: categoryStyles[name]?.tabColor || "#666",
+            textColor: categoryStyles[name]?.textColor || "#1a1a1a",
         }));
 }
 
-// Smooth spring animation config per design system
-const springTransition = {
-    type: "spring" as const,
-    stiffness: 300,
-    damping: 25,
-};
+// Individual sticky note component
+function StickyNote({ category, index }: { category: TechCategory; index: number }) {
+    // Slight rotation variations for a more natural look
+    const rotations = [-2, 1, -1, 2, -1.5, 1.5];
+    const rotation = rotations[index % rotations.length];
 
-// Folder content animation variants
-const contentVariants = {
-    initial: {
-        opacity: 0,
-        y: 20,
-        scale: 0.98,
-    },
-    animate: {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        transition: {
-            ...springTransition,
-            staggerChildren: 0.03,
-            delayChildren: 0.1,
-        },
-    },
-    exit: {
-        opacity: 0,
-        y: -15,
-        scale: 0.98,
-        transition: { duration: 0.2 },
-    },
-};
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20, rotate: 0 }}
+            whileInView={{ opacity: 1, y: 0, rotate: rotation }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+            whileHover={{ 
+                rotate: 0, 
+                scale: 1.02,
+                boxShadow: "8px 8px 0px 0px rgba(0,0,0,1)",
+                transition: { duration: 0.2 }
+            }}
+            className="relative p-6 border-2 border-black min-w-[280px] flex-1"
+            style={{
+                backgroundColor: category.bgColor,
+                boxShadow: "5px 5px 0px 0px rgba(0,0,0,1)",
+            }}
+        >
+            {/* Tape decoration at top */}
+            <div 
+                className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-5 border border-gray-400/50 z-10"
+                style={{
+                    background: "linear-gradient(180deg, rgba(200,200,200,0.6) 0%, rgba(180,180,180,0.4) 100%)",
+                    transform: `translateX(-50%) rotate(${rotation > 0 ? -1 : 1}deg)`,
+                }}
+            />
 
-// Skill tag animation variants
-const skillVariants = {
-    initial: { opacity: 0, y: 12, scale: 0.9 },
-    animate: {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        transition: springTransition,
-    },
-    exit: { opacity: 0, scale: 0.9 },
-};
+            {/* Category Title */}
+            <h3 
+                className="font-mono font-black text-xl mb-4 tracking-tight"
+                style={{ color: category.textColor }}
+            >
+                {category.name}
+                {/* Hand-drawn underline */}
+                <svg
+                    className="w-full max-w-[120px] h-2 mt-1"
+                    viewBox="0 0 120 8"
+                    preserveAspectRatio="none"
+                >
+                    <path
+                        d="M2 5 Q 30 2 60 5 T 118 4"
+                        stroke={category.textColor}
+                        strokeWidth="2"
+                        fill="none"
+                        strokeLinecap="round"
+                    />
+                </svg>
+            </h3>
+
+            {/* Skills List */}
+            <div className="flex flex-wrap gap-2">
+                {category.skills.map((skill) => (
+                    <span
+                        key={skill}
+                        className="px-3 py-1.5 text-sm font-mono font-bold bg-white/90 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-black hover:text-white hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] transition-all duration-150 cursor-default select-none"
+                        style={{ color: "#1a1a1a" }}
+                    >
+                        {skill}
+                    </span>
+                ))}
+            </div>
+        </motion.div>
+    );
+}
 
 export default function TechStackSection({ skills }: TechStackSectionProps) {
     const categories = categorizeSkills(skills);
-    const [activeIndex, setActiveIndex] = useState(0);
-
-    const handleTabClick = useCallback((index: number) => {
-        if (index !== activeIndex) {
-            setActiveIndex(index);
-        }
-    }, [activeIndex]);
 
     if (categories.length === 0) {
         return (
             <div className="text-center py-12 font-mono text-gray-400">
-        // NO SKILLS DEFINED
+                // NO SKILLS DEFINED
             </div>
         );
     }
 
-    const currentCategory = categories[activeIndex];
-
     return (
-        <div className="relative w-full max-w-4xl mx-auto">
-            {/* Folder Tabs Container */}
-            <div className="flex items-end gap-1 px-2">
-                {categories.map((cat, index) => {
-                    const isActive = index === activeIndex;
-
-                    return (
-                        <motion.button
-                            key={cat.name}
-                            onClick={() => handleTabClick(index)}
-                            className="relative font-mono font-bold text-xs tracking-wide border-2 border-b-0 border-black transition-colors"
-                            style={{
-                                backgroundColor: isActive ? cat.tabColor : '#9ca3af',
-                                color: 'white',
-                                borderRadius: '10px 10px 0 0',
-                                padding: '10px 16px',
-                                zIndex: isActive ? 20 : 10 - index,
-                                marginBottom: isActive ? '-2px' : '0',
-                            }}
-                            whileHover={{
-                                y: isActive ? 0 : -2,
-                                transition: { duration: 0.15 },
-                            }}
-                            whileTap={{ scale: 0.98 }}
-                        >
-                            {cat.shortName}
-
-                            {/* Active indicator dot */}
-                            {isActive && (
-                                <motion.div
-                                    layoutId="activeTabIndicator"
-                                    className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full border border-black/20"
-                                    transition={springTransition}
-                                />
-                            )}
-                        </motion.button>
-                    );
-                })}
+        <div className="w-full max-w-6xl mx-auto">
+            {/* Sticky Notes Grid - Side by Side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {categories.map((category, index) => (
+                    <StickyNote 
+                        key={category.name} 
+                        category={category} 
+                        index={index}
+                    />
+                ))}
             </div>
-
-            {/* Folder Content Card */}
-            <div
-                className="relative border-2 border-black overflow-hidden"
-                style={{
-                    backgroundColor: currentCategory.bgColor,
-                    borderRadius: '0 12px 12px 12px',
-                    boxShadow: '6px 6px 0px 0px rgba(0,0,0,1)',
-                }}
-            >
-                {/* Paper texture overlay */}
-                <div
-                    className="absolute inset-0 opacity-[0.025] pointer-events-none"
-                    style={{
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`
-                    }}
-                />
-
-                {/* Top fold line decoration */}
-                <div
-                    className="h-1 w-full"
-                    style={{ backgroundColor: currentCategory.tabColor + '15' }}
-                />
-
-                {/* Animated Content */}
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={activeIndex}
-                        variants={contentVariants}
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                        className="relative p-8 md:p-10"
-                    >
-                        {/* Category Header */}
-                        <div className="mb-8">
-                            <motion.h3
-                                className="font-mono font-black text-2xl md:text-3xl tracking-tight text-black inline-block"
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.05, ...springTransition }}
-                            >
-                                {currentCategory.name}
-                            </motion.h3>
-
-                            {/* Animated wavy underline */}
-                            <svg
-                                className="w-full max-w-[180px] h-3 mt-1"
-                                viewBox="0 0 120 12"
-                                preserveAspectRatio="none"
-                            >
-                                <motion.path
-                                    d="M2 7 Q 15 3 30 7 T 60 6 T 90 7 T 118 5"
-                                    stroke={currentCategory.tabColor}
-                                    strokeWidth="3"
-                                    fill="none"
-                                    strokeLinecap="round"
-                                    initial={{ pathLength: 0, opacity: 0 }}
-                                    animate={{ pathLength: 1, opacity: 1 }}
-                                    transition={{ duration: 0.6, delay: 0.15, ease: "easeOut" }}
-                                />
-                            </svg>
-                        </div>
-
-                        {/* Skills Grid */}
-                        <motion.div
-                            className="flex flex-wrap gap-3"
-                            variants={contentVariants}
-                        >
-                            {currentCategory.skills.map((skill) => (
-                                <motion.span
-                                    key={skill}
-                                    variants={skillVariants}
-                                    className="px-4 py-2.5 text-sm font-mono font-bold bg-white border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-black hover:text-white hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] transition-all duration-150 cursor-default select-none"
-                                >
-                                    {skill}
-                                </motion.span>
-                            ))}
-                        </motion.div>
-
-                        {/* Skill count badge */}
-                        <motion.div
-                            className="absolute bottom-4 right-6 md:bottom-6 md:right-8"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.3 }}
-                        >
-                            <span className="font-mono text-xs text-black/40 bg-white/50 px-2 py-1 rounded border border-black/10">
-                                {currentCategory.skills.length} skill{currentCategory.skills.length !== 1 ? 's' : ''}
-                            </span>
-                        </motion.div>
-                    </motion.div>
-                </AnimatePresence>
-            </div>
-
-            {/* Subtle shadow under folder */}
-            <div
-                className="absolute -bottom-3 left-3 right-3 h-6 bg-gradient-to-b from-black/5 to-transparent rounded-b-lg -z-10"
-                style={{ filter: 'blur(4px)' }}
-            />
         </div>
     );
 }

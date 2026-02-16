@@ -12,7 +12,7 @@ export default async function BlogPage() {
   const posts = await getPublishedBlogPosts();
 
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-[var(--background)]">
       <BlogListClient posts={posts} />
     </main>
   );

@@ -1,193 +1,130 @@
-import { getAnalyticsSummary } from "@/lib/analytics";
-import { getAllProjects, getAllBlogPosts, getAvailability } from "@/lib/db";
-import { Eye, Users, FileText, Briefcase } from "lucide-react";
+"use client";
+
+import { motion } from "framer-motion";
+import BuildLogs from "@/components/BuildLogs";
 import Link from "next/link";
+import { ArrowLeft, RefreshCw, CheckCircle, AlertCircle } from "lucide-react";
+import { useState } from "react";
 
-export const dynamic = "force-dynamic";
+export default function Dashboard() {
+  const [syncing, setSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<"idle" | "success" | "error">("idle");
 
-export default async function DashboardPage() {
-  const [analytics, projects, blogPosts, availability] = await Promise.all([
-    getAnalyticsSummary(30),
-    getAllProjects(),
-    getAllBlogPosts(),
-    getAvailability(),
-  ]);
-
-  const stats = [
-    {
-      label: "Page Views (30d)",
-      value: analytics.totalPageViews.toLocaleString(),
-      icon: Eye,
-      color: "text-blue-600",
-      bg: "bg-blue-50",
-    },
-    {
-      label: "Unique Visitors",
-      value: analytics.uniqueVisitors.toLocaleString(),
-      icon: Users,
-      color: "text-green-600",
-      bg: "bg-green-50",
-    },
-    {
-      label: "Blog Posts",
-      value: blogPosts.length.toString(),
-      icon: FileText,
-      color: "text-purple-600",
-      bg: "bg-purple-50",
-    },
-    {
-      label: "Total Projects",
-      value: projects.length.toString(),
-      icon: Briefcase,
-      color: "text-orange-600",
-      bg: "bg-orange-50",
-    },
-  ];
+  const triggerSync = async () => {
+    setSyncing(true);
+    setSyncStatus("idle");
+    try {
+        const res = await fetch("/api/cron/sync-projects");
+        if (!res.ok) throw new Error("Sync failed");
+        setSyncStatus("success");
+    } catch (error) {
+        console.error(error);
+        setSyncStatus("error");
+    } finally {
+        setSyncing(false);
+        // Reset status after 3s
+        setTimeout(() => setSyncStatus("idle"), 3000);
+    }
+  };
 
   return (
-    <div>
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="font-mono font-bold text-3xl mb-2">Dashboard Overview</h1>
-        <p className="text-gray-600">Welcome back! Here's what's happening with your portfolio.</p>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        {stats.map((stat) => (
-          <div
-            key={stat.label}
-            className="bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-          >
-            <div className="flex items-center gap-3">
-              <div className={`p-2 ${stat.bg} border border-black`}>
-                <stat.icon className={stat.color} size={20} />
-              </div>
-              <div>
-                <p className="text-xs font-mono text-gray-500 uppercase">{stat.label}</p>
-                <p className="text-2xl font-mono font-bold">{stat.value}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Availability Status */}
-      <div className="mb-8">
-        <div className="bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-mono font-bold text-lg mb-1">Availability Status</h2>
-              <p className="text-sm text-gray-600">{availability?.message ?? "Available for new opportunities"}</p>
-            </div>
-            <div className={`px-4 py-2 border-2 border-black font-mono font-bold text-sm ${
-              availability?.isAvailable
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
-            }`}>
-              {availability?.isAvailable ? "AVAILABLE" : "UNAVAILABLE"}
-            </div>
-          </div>
-          <Link
-            href="/dashboard/content"
-            className="inline-block mt-4 text-sm font-mono text-gray-500 hover:text-black transition-colors"
-          >
-            Change status →
-          </Link>
-        </div>
-      </div>
-
-      {/* Quick Links Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Recent Projects */}
-        <div className="bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-mono font-bold text-lg">Recent Projects</h2>
-            <Link
-              href="/dashboard/projects"
-              className="text-sm font-mono text-gray-500 hover:text-black transition-colors"
+    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] py-20 px-6">
+       {/* Grid Background */}
+       <div
+        className="fixed inset-0 pointer-events-none opacity-[0.03]"
+        style={{
+          backgroundImage:
+            "linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)",
+          backgroundSize: "30px 30px",
+        }}
+      />
+      
+      <div className="max-w-4xl mx-auto relative z-10">
+        <div className="mb-12">
+            <Link 
+                href="/" 
+                className="inline-flex items-center gap-2 font-mono text-xs text-[var(--muted)] hover:text-[var(--foreground)] mb-6 transition-colors"
             >
-              View all →
+                <ArrowLeft size={14} />
+                Back to Portfolio
             </Link>
-          </div>
-          <div className="space-y-3">
-            {projects.slice(0, 4).map((project) => (
-              <div
-                key={project.id}
-                className="flex items-center justify-between p-3 border border-dashed border-gray-300 hover:border-black transition-colors"
-              >
-                <div>
-                  <p className="font-mono font-bold text-sm">{project.title}</p>
-                  <p className="text-xs text-gray-500">{project.tag}</p>
-                </div>
-                <span className={`text-xs font-mono ${project.isVisible ? "text-green-600" : "text-gray-400"}`}>
-                  {project.isVisible ? "VISIBLE" : "HIDDEN"}
-                </span>
-              </div>
-            ))}
-            {projects.length === 0 && (
-              <p className="text-gray-500 text-sm text-center py-4">No projects yet</p>
-            )}
-          </div>
+            
+            <h1 className="font-mono font-black text-4xl md:text-5xl mb-4">
+                ENGINEERING <span className="marker-yellow">DASHBOARD</span>.
+            </h1>
+            <p className="font-mono text-[var(--muted)]">
+                Internal metrics, shipping logs, and automation status.
+            </p>
         </div>
 
-        {/* Recent Blog Posts */}
-        <div className="bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-mono font-bold text-lg">Recent Blog Posts</h2>
-            <Link
-              href="/dashboard/blog"
-              className="text-sm font-mono text-gray-500 hover:text-black transition-colors"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Left Column: Build Logs */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
             >
-              View all →
-            </Link>
-          </div>
-          <div className="space-y-3">
-            {blogPosts.slice(0, 4).map((post) => (
-              <div
-                key={post.id}
-                className="flex items-center justify-between p-3 border border-dashed border-gray-300 hover:border-black transition-colors"
-              >
-                <div>
-                  <p className="font-mono font-bold text-sm">{post.title}</p>
-                  <p className="text-xs text-gray-500">
-                    {post.publishedAt 
-                      ? new Date(post.publishedAt).toLocaleDateString()
-                      : "Draft"}
-                  </p>
+                <BuildLogs />
+            </motion.div>
+
+            {/* Right Column: Future Analytics */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="space-y-8"
+            >
+                <div className="p-6 border-2 border-[var(--border)] bg-[var(--card-bg)] shadow-hard">
+                    <div className="flex justify-between items-center mb-4">
+                        <h3 className="font-mono font-bold text-lg">Automation Status</h3>
+                    </div>
+                    
+                    <div className="space-y-3">
+                        <div className="flex justify-between items-center py-2 border-b border-dashed border-[var(--border)]">
+                            <span className="font-mono text-sm">Project Sync</span>
+                            <div className="flex items-center gap-2">
+                                {syncStatus === "success" && <CheckCircle size={14} className="text-green-600" />}
+                                {syncStatus === "error" && <AlertCircle size={14} className="text-red-600" />}
+                                <button 
+                                    onClick={triggerSync}
+                                    disabled={syncing}
+                                    className="flex items-center gap-1.5 px-2 py-1 bg-[var(--foreground)] text-[var(--background)] text-xs font-mono font-bold rounded hover:opacity-80 disabled:opacity-50 transition-all"
+                                >
+                                    <RefreshCw size={10} className={syncing ? "animate-spin" : ""} />
+                                    {syncing ? "SYNCING..." : "SYNC NOW"}
+                                </button>
+                            </div>
+                        </div>
+
+                        <StatusItem label="Blog Auto-Publish" status="Pending" />
+                        <StatusItem label="SEO Health" status="98/100" type="success" />
+                    </div>
                 </div>
-                <span className={`text-xs font-mono ${post.published ? "text-green-600" : "text-gray-400"}`}>
-                  {post.published ? "PUBLISHED" : "DRAFT"}
-                </span>
-              </div>
-            ))}
-            {blogPosts.length === 0 && (
-              <p className="text-gray-500 text-sm text-center py-4">No blog posts yet</p>
-            )}
-          </div>
+
+                <div className="p-6 border-2 border-[var(--border)] bg-[var(--accent)] shadow-hard items-center justify-center flex flex-col text-center">
+                    <p className="font-mono text-xs text-[var(--muted)] mb-2">Total Contributions (YTD)</p>
+                    <div className="text-4xl font-black">482</div>
+                </div>
+            </motion.div>
         </div>
       </div>
-
-      {/* Top Pages */}
-      {analytics.topPages.length > 0 && (
-        <div className="mt-6 bg-white border-2 border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <h2 className="font-mono font-bold text-lg mb-4">Top Pages (30 days)</h2>
-          <div className="space-y-2">
-            {analytics.topPages.slice(0, 5).map((page, index) => (
-              <div
-                key={page.page}
-                className="flex items-center justify-between p-2 hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="font-mono text-gray-400 text-sm w-6">{index + 1}.</span>
-                  <span className="font-mono text-sm">{page.page}</span>
-                </div>
-                <span className="font-mono text-sm text-gray-600">{page.count} views</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
+    </main>
   );
+}
+
+function StatusItem({ label, status, type = "neutral" }: { label: string, status: string, type?: "neutral" | "success" | "error" }) {
+    const colors = {
+        neutral: "bg-gray-200 text-gray-700",
+        success: "bg-green-100 text-green-700 border-green-200",
+        error: "bg-red-100 text-red-700 border-red-200"
+    };
+
+    return (
+        <div className="flex justify-between items-center py-2 border-b border-dashed border-[var(--border)] last:border-0">
+            <span className="font-mono text-sm">{label}</span>
+            <span className={`text-xs font-bold px-2 py-0.5 rounded border ${colors[type]}`}>
+                {status}
+            </span>
+        </div>
+    )
 }

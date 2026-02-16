@@ -49,7 +49,7 @@ export default function MessageForm() {
 
     return (
         <div
-            className="relative bg-white border-2 border-black p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]"
+            className="relative bg-[var(--card-bg)] border-2 border-[var(--border)] p-6 shadow-hard"
             style={{
                 borderRadius: "15px 255px 15px 225px / 225px 15px 255px 15px",
             }}
@@ -57,12 +57,12 @@ export default function MessageForm() {
             {/* Tape decoration */}
             <div className="absolute -top-3 right-8 w-20 h-6 bg-gray-200/80 rotate-[3deg] border border-gray-300 z-10" />
 
-            <h3 className="font-mono font-bold text-lg mb-4">DROP A MESSAGE</h3>
+            <h3 className="font-mono font-bold text-lg mb-4 text-[var(--foreground)]">DROP A MESSAGE</h3>
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Name Input */}
                 <div>
-                    <label className="block font-mono text-xs text-gray-500 uppercase tracking-wider mb-1">
+                    <label className="block font-mono text-xs text-[var(--muted)] uppercase tracking-wider mb-1">
                         Name *
                     </label>
                     <input
@@ -73,29 +73,29 @@ export default function MessageForm() {
                         minLength={2}
                         maxLength={100}
                         disabled={isPending}
-                        className="w-full px-4 py-2 border-2 border-black font-mono text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] focus:outline-none transition-shadow disabled:opacity-50"
+                        className="w-full px-4 py-2 border-2 border-[var(--border)] bg-[var(--input-bg)] text-[var(--foreground)] font-mono text-sm shadow-hard-sm focus:shadow-hard focus:outline-none transition-shadow disabled:opacity-50 placeholder:text-[var(--muted)]"
                         placeholder="Your name"
                     />
                 </div>
 
                 {/* Email Input (Optional) */}
                 <div>
-                    <label className="block font-mono text-xs text-gray-500 uppercase tracking-wider mb-1">
-                        Email <span className="text-gray-400">(optional)</span>
+                    <label className="block font-mono text-xs text-[var(--muted)] uppercase tracking-wider mb-1">
+                        Email <span className="text-[var(--muted-foreground)]">(optional)</span>
                     </label>
                     <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         disabled={isPending}
-                        className="w-full px-4 py-2 border-2 border-dashed border-gray-300 font-mono text-sm focus:border-black focus:border-solid focus:outline-none transition-all disabled:opacity-50"
+                        className="w-full px-4 py-2 border-2 border-dashed border-[var(--muted)] bg-[var(--input-bg)] text-[var(--foreground)] font-mono text-sm focus:border-[var(--border)] focus:border-solid focus:outline-none transition-all disabled:opacity-50 placeholder:text-[var(--muted)]"
                         placeholder="your@email.com"
                     />
                 </div>
 
                 {/* Message Textarea */}
                 <div>
-                    <label className="block font-mono text-xs text-gray-500 uppercase tracking-wider mb-1">
+                    <label className="block font-mono text-xs text-[var(--muted)] uppercase tracking-wider mb-1">
                         Message *
                     </label>
                     <textarea
@@ -106,10 +106,10 @@ export default function MessageForm() {
                         maxLength={2000}
                         rows={4}
                         disabled={isPending}
-                        className="w-full px-4 py-3 border-2 border-black font-mono text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] focus:outline-none resize-none transition-shadow disabled:opacity-50"
+                        className="w-full px-4 py-3 border-2 border-[var(--border)] bg-[var(--input-bg)] text-[var(--foreground)] font-mono text-sm shadow-hard-sm focus:shadow-hard focus:outline-none resize-none transition-shadow disabled:opacity-50 placeholder:text-[var(--muted)]"
                         placeholder="Write your message here..."
                     />
-                    <p className="text-xs font-mono text-gray-400 mt-1 text-right">
+                    <p className="text-xs font-mono text-[var(--muted)] mt-1 text-right">
                         {message.length}/2000
                     </p>
                 </div>
@@ -118,7 +118,7 @@ export default function MessageForm() {
                 <button
                     type="submit"
                     disabled={isPending || status === "success"}
-                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-black text-white font-mono font-bold text-sm border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-white hover:text-black hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-black disabled:hover:text-white disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                    className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[var(--foreground)] text-[var(--background)] font-mono font-bold text-sm border-2 border-[var(--border)] shadow-hard-sm hover:bg-[var(--background)] hover:text-[var(--foreground)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[var(--foreground)] disabled:hover:text-[var(--background)] disabled:hover:translate-x-0 disabled:hover:translate-y-0 disabled:hover:shadow-hard-sm"
                 >
                     {isPending ? (
                         <>
