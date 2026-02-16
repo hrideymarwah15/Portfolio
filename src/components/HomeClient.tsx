@@ -107,7 +107,11 @@ export default function HomeClient({ data }: HomeClientProps) {
           <video
             ref={(el: HTMLVideoElement | null) => {
               if (el) {
-                el.play().catch(console.error);
+                el.muted = true; // Force mute to satisfy autoplay policy
+                el.play().catch(() => {
+                  // Autoplay failed - usually due to low power mode or user settings
+                  // We suppress the error to avoid console noise
+                });
               }
             }}
             autoPlay
@@ -115,7 +119,7 @@ export default function HomeClient({ data }: HomeClientProps) {
             muted
             playsInline
             controls={false}
-            className="h-full w-auto max-w-none object-cover object-left relative opacity-90"
+            className="h-full w-auto max-w-none object-cover object-left relative opacity-90 pointer-events-none"
             style={{
               minHeight: "100%",
               transform: "translateX(10%)",

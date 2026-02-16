@@ -182,7 +182,17 @@ body::before {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ============================================
+   HIDE VIDEO CONTROLS
+   Force hide default browser video overlays
+   ============================================ */
+video::-webkit-media-controls {
+  display: none !important;
+}
+video::-webkit-media-controls-enclosure {
+  display: none !important;
 }

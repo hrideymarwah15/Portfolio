@@ -20,9 +20,14 @@ export async function GET() {
 
     // Get user's GitHub access token from Supabase auth
     const { data: { session } } = await supabase.auth.getSession();
-    const providerToken = session?.provider_token;
+    let token = session?.provider_token;
 
-    if (!providerToken) {
+    // Fallback to env token if not found (for admin/owner access)
+    if (!token && process.env.GITHUB_TOKEN) {
+      token = process.env.GITHUB_TOKEN;
+    }
+
+    if (!token) {
       return NextResponse.json(
         { error: "No GitHub token found. Please sign in with GitHub." },
         { status: 401 }
@@ -32,7 +37,7 @@ export async function GET() {
     // Fetch user's repos from GitHub
     const response = await fetch("https://api.github.com/user/repos?sort=updated&per_page=100", {
       headers: {
-        Authorization: `Bearer ${providerToken}`,
+        Authorization: `Bearer ${token}`,
         Accept: "application/vnd.github.v3+json",
       },
     });
