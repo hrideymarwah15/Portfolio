@@ -13,6 +13,9 @@ interface BlogListClientProps {
 type SortOption = "newest" | "popular";
 
 export default function BlogListClient({ posts }: BlogListClientProps) {
+  if (!posts) {
+    return <div>Error: No posts found.</div>;
+  }
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [showNotification, setShowNotification] = useState(true);
@@ -27,8 +30,8 @@ export default function BlogListClient({ posts }: BlogListClientProps) {
       const searchLower = searchQuery.toLowerCase();
       return (
         post.title.toLowerCase().includes(searchLower) ||
-        post.excerpt?.toLowerCase().includes(searchLower) ||
-        post.tags.some((tag) => tag.toLowerCase().includes(searchLower))
+        (post.excerpt && post.excerpt.toLowerCase().includes(searchLower)) ||
+        (post.tags && post.tags.some((tag) => tag.toLowerCase().includes(searchLower)))
       );
     });
 
@@ -177,7 +180,7 @@ export default function BlogListClient({ posts }: BlogListClientProps) {
                     })}
                   </span>
                 )}
-                {post.tags.length > 0 && (
+                {post.tags && post.tags.length > 0 && (
                   <span className="flex items-center gap-1">
                     <Tag size={12} />
                     {post.tags.join(", ")}
