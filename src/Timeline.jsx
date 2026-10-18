@@ -3,7 +3,7 @@ import { GraduationCap, Trophy, GitMerge } from "@phosphor-icons/react";
 import { JourneyObject } from "./Objects";
 const entries=[
   {year:"2025 — 2029",title:"Computer Science, with an AI lens.",detail:"Newton School of Technology · Rishihood University",Icon:GraduationCap},
-  {year:"2025",title:"An idea, under a deadline.",detail:"Finalist · IIIT Gwalior InfoTsav hackathon",Icon:Trophy},
+  {year:"2025",title:"Ideas built under a deadline.",detail:"Hackathon finalist · IIIT Gwalior InfoTsav ’25 · IISc Bangalore · Decode by NST",Icon:Trophy},
   {year:"2026 — Ongoing",title:"Working inside JAX.",detail:"Merged fixes in numerical computing and error handling",Icon:GitMerge},
 ];
 export default function Timeline(){

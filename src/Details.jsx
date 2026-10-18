@@ -223,8 +223,8 @@ const journey = [
     Icon: Trophy,
     period: "2025",
     name: "Building under a deadline.",
-    org: "IIIT Gwalior InfoTsav ’25 · IISc Bangalore",
-    body: "Finalist at IIIT Gwalior’s national-level hackathon and participant in the IISc Bangalore hackathon.",
+    org: "IIIT Gwalior InfoTsav ’25 · IISc Bangalore · Decode by NST",
+    body: "Hackathon finalist at IIIT Gwalior InfoTsav ’25, IISc Bangalore, and Decode by NST.",
   },
 ];
 export function Journey() {
