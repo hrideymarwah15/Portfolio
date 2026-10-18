@@ -9,4 +9,5 @@ dist/
 .vercel/
 graphify-out/
 .impeccable/
+resume-source/build/
 .vercel

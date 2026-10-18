@@ -1,0 +1,105 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[letterpaper,top=0.42in,bottom=0.42in,left=0.52in,right=0.52in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\usepackage{tabularx}
+\usepackage{ragged2e}
+
+\definecolor{ink}{HTML}{17151B}
+\definecolor{accent}{HTML}{6C4E7C}
+\definecolor{muted}{HTML}{5E5963}
+\color{ink}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt}
+\setlist[itemize]{leftmargin=1.05em,itemsep=0.5pt,topsep=1.2pt,parsep=0pt}
+\titleformat{\section}{\bfseries\small\color{accent}}{}{0pt}{\MakeUppercase}[\vspace{-3pt}\color{accent}\rule{\linewidth}{0.5pt}]
+\titlespacing*{\section}{0pt}{5.2pt}{2.7pt}
+\newcommand{\project}[3]{%
+  \textbf{#1}\hfill{\small\textit{#2}}\\[-1pt]
+  {\small\color{muted}#3}\vspace{-1pt}
+}
+\newcommand{\linked}[2]{\href{#1}{\textcolor{accent}{#2}}}
+\newcommand{\tightbullet}[1]{\item {\small #1}}
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries Hridey Marwah}\\[2pt]
+  {\small Delhi, India \enspace|\enspace
+  \href{mailto:hrideymarwah2907@gmail.com}{hrideymarwah2907@gmail.com} \enspace|\enspace
+  \linked{https://www.hrideymarwah.online}{Portfolio} \enspace|\enspace
+  \linked{https://github.com/hrideymarwah15}{GitHub} \enspace|\enspace
+  \linked{https://www.linkedin.com/in/hrideymarwah}{LinkedIn}}
+\end{center}
+\vspace{-4pt}
+
+\section{Profile}
+{\small First-year Computer Science (AI) student researching and building AI systems, multi-agent architectures, and full-stack applications. Exploring reliable orchestration, agentic coding, memory, reasoning, tool use, and verification while contributing to open-source machine-learning infrastructure.}
+
+\section{Education}
+\textbf{Newton School of Technology} \hfill \textbf{2025--2029}\\[-1pt]
+{\small B.Tech in Computer Science \& Engineering (AI), Rishihood University, Sonipat}
+
+\section{Technical Skills}
+{\small
+\textbf{Languages:} Python, JavaScript, TypeScript, SQL, HTML, CSS \quad
+\textbf{Frontend:} React, Next.js, Tailwind CSS\\[-1pt]
+\textbf{Backend/Data:} Node.js, FastAPI, REST APIs, PostgreSQL, Prisma, Supabase \quad
+\textbf{AI/ML:} JAX, NumPy, LLMs, Multi-Agent Systems, OCR, Computer Vision\\[-1pt]
+\textbf{Tools:} Git, GitHub, VS Code, Docker, Ollama, MCP
+}
+
+\section{Projects}
+
+\project{Brain Architecture --- Cognitive AI Orchestration}{Active research}{Agent orchestration / shared memory / experimental systems}
+\begin{itemize}
+  \tightbullet{Researching how specialized agents, shared memory, planning, tool use, and failure recovery can coordinate on complex multi-step tasks.}
+  \tightbullet{Designing critique, synthesis, execution, and verification loops that treat first-pass model output as an intermediate result.}
+\end{itemize}
+
+\project{Co-Team + AeroHarness --- Multi-Agent Coding System}{\linked{https://github.com/hrideymarwah15/co-team}{Co-Team} \enspace|\enspace \linked{https://github.com/hrideymarwah15/ai-harness}{AeroHarness}}{TypeScript / VS Code / MCP / SQLite / Ollama}
+\begin{itemize}
+  \tightbullet{Built a VS Code multi-agent pipeline that classifies task complexity and routes work across specialized planning, coding, design, documentation, and review agents.}
+  \tightbullet{Separated orchestration from controlled execution through a platform-agnostic harness with sandboxing, human approval gates, event traces, and iterative verification.}
+\end{itemize}
+
+\project{Supply Chain Disruption Simulator}{\linked{https://github.com/hrideymarwah15/sc-disruption}{Repository}}{React / Node.js / PostgreSQL / Prisma / JavaScript}
+\begin{itemize}
+  \tightbullet{Built an interactive event-driven simulation of disruptions propagating across directed supplier, warehouse, distribution, and retailer networks.}
+  \tightbullet{Modeled cascading inventory, order, and shipment effects; compared alternate routes, suppliers, and recovery strategies.}
+\end{itemize}
+
+\project{RoleReady AI --- Adaptive Career Roadmaps}{\linked{https://github.com/hrideymarwah15/roleready-ai}{Repository}}{Python / FastAPI / Sentence Transformers / NetworkX}
+\begin{itemize}
+  \tightbullet{Built a resume-to-job skill-gap pipeline with semantic matching, readiness scoring, and prerequisite-aware learning paths.}
+  \tightbullet{Used a skill dependency graph and topological ordering to generate structured roadmaps with explainable recommendations.}
+\end{itemize}
+
+\project{Aushadhi OCR --- Medical Prescription Digitization}{\linked{https://github.com/hrideymarwah15/Aushadhi_OCR}{Repository}}{OCR / Computer Vision / Next.js / TypeScript / Supabase}
+\begin{itemize}
+  \tightbullet{Built an OCR workflow that extracts medicine and prescription details into structured verification records.}
+  \tightbullet{Applied image preprocessing and AI-assisted correction to improve extraction from noisy, unstructured medical text.}
+\end{itemize}
+
+\section{Open Source}
+\textbf{JAX Contributor} \hfill \linked{https://github.com/jax-ml/jax/pulls?q=is\%3Apr+author\%3Ahrideymarwah15+is\%3Amerged}{4 merged pull requests}
+\begin{itemize}
+  \tightbullet{Contributed fixes to JAX numerical behavior and error handling, including boundary derivatives and safer invalid-code handling.}
+\end{itemize}
+
+\section{Achievements}
+{\small
+\footnotesize
+\textbf{Hackathon Finalist} --- IIIT Gwalior InfoTsav'25 \quad|\quad
+\textbf{IISc Bangalore Hackathon} --- Participant \quad|\quad
+\textbf{GSoC 2026 Applicant}
+}
+
+\end{document}
