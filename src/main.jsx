@@ -133,11 +133,6 @@ function App() {
           <div className="studio-wrap">
             <Workspace theme={theme} onObject={go} />
           </div>
-          <div className="hero-actions">
-            <a className="button primary" href="#work">
-              Explore my work
-            </a>
-          </div>
         </section>
         <Story />
         <section id="work" className="work shell section-pad chapter">
